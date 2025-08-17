@@ -1,0 +1,1478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Advanced Disaster Prediction & Safety System</title>
+<style>
+  :root {
+    --primary-blue: #2563eb;
+    --secondary-blue: #1e40af;
+    --accent-blue: #3b82f6;
+    --light-blue: #dbeafe;
+    --ultra-light-blue: #eff6ff;
+    --dark-blue: #1e3a8a;
+    
+    --pure-white: #ffffff;
+    --off-white: #f8fafc;
+    --light-gray: #f1f5f9;
+    --border-gray: #e2e8f0;
+    --text-dark: #0f172a;
+    --text-medium: #334155;
+    --text-light: #64748b;
+    
+    --success: #10b981;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+    --info: #06b6d4;
+    
+    --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --gradient-blue: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+    --gradient-light: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    --shadow-blue: 0 10px 25px rgba(37, 99, 235, 0.15);
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--off-white);
+    color: var(--text-dark);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border-gray);
+    box-shadow: var(--shadow-md);
+  }
+
+  .header-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .logo-icon {
+    width: 40px;
+    height: 40px;
+    background: var(--gradient-blue);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+    font-weight: bold;
+    box-shadow: var(--shadow-blue);
+  }
+
+  .logo h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    background: var(--gradient-blue);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .toolbar {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  input, select, button {
+    background: var(--pure-white);
+    color: var(--text-dark);
+    border: 2px solid var(--border-gray);
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
+    outline: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    font-size: 0.95rem;
+  }
+
+  input:focus, select:focus {
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    transform: translateY(-1px);
+  }
+
+  button {
+    cursor: pointer;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+  }
+
+  button:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+  }
+
+  button.primary {
+    background: var(--gradient-blue);
+    color: white;
+    border: none;
+    box-shadow: var(--shadow-blue);
+  }
+
+  button.primary:hover {
+    box-shadow: 0 15px 30px rgba(37, 99, 235, 0.25);
+  }
+
+  button.secondary {
+    background: var(--light-blue);
+    color: var(--primary-blue);
+    border-color: var(--primary-blue);
+  }
+
+  .container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: 2rem;
+  }
+
+  @media (max-width: 1200px) {
+    .container {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+  }
+
+  .card {
+    background: var(--pure-white);
+    border-radius: 20px;
+    padding: 2rem;
+    border: 1px solid var(--border-gray);
+    box-shadow: var(--shadow-lg);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--gradient-blue);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-xl);
+  }
+
+  .card:hover::before {
+    opacity: 1;
+  }
+
+  .card-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .card-title .icon {
+    width: 32px;
+    height: 32px;
+    background: var(--gradient-blue);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1rem;
+  }
+
+  .card-subtitle {
+    color: var(--text-light);
+    font-size: 0.95rem;
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+  }
+
+  .status-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .status-item {
+    background: var(--light-gray);
+    padding: 1rem;
+    border-radius: 12px;
+    text-align: center;
+    border: 1px solid var(--border-gray);
+    transition: all 0.3s ease;
+  }
+
+  .status-item:hover {
+    background: var(--ultra-light-blue);
+    border-color: var(--primary-blue);
+  }
+
+  .status-label {
+    font-size: 0.85rem;
+    color: var(--text-light);
+    margin-bottom: 0.25rem;
+    font-weight: 600;
+  }
+
+  .status-value {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-dark);
+  }
+
+  .alerts-container {
+    margin-bottom: 2rem;
+  }
+
+  .alert {
+    background: var(--pure-white);
+    border: 2px solid var(--border-gray);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .alert::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 4px;
+    transition: all 0.3s ease;
+  }
+
+  .alert-high {
+    border-color: rgba(239, 68, 68, 0.3);
+    background: rgba(239, 68, 68, 0.02);
+  }
+
+  .alert-high::before {
+    background: var(--danger);
+  }
+
+  .alert-medium {
+    border-color: rgba(245, 158, 11, 0.3);
+    background: rgba(245, 158, 11, 0.02);
+  }
+
+  .alert-medium::before {
+    background: var(--warning);
+  }
+
+  .alert-low {
+    border-color: rgba(16, 185, 129, 0.3);
+    background: rgba(16, 185, 129, 0.02);
+  }
+
+  .alert-low::before {
+    background: var(--success);
+  }
+
+  .alert-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+  }
+
+  .alert-title {
+    font-weight: 700;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .severity-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .severity-high {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--danger);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+  }
+
+  .severity-medium {
+    background: rgba(245, 158, 11, 0.1);
+    color: var(--warning);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+  }
+
+  .severity-low {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--success);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+  }
+
+  .alert-score {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--text-medium);
+  }
+
+  .alert-message {
+    color: var(--text-dark);
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+  }
+
+  .alert-evidence {
+    color: var(--text-light);
+    font-size: 0.9rem;
+    font-style: italic;
+  }
+
+  .slots-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .slot {
+    background: var(--light-gray);
+    padding: 1rem;
+    border-radius: 12px;
+    border: 1px solid var(--border-gray);
+    transition: all 0.3s ease;
+  }
+
+  .slot:hover {
+    background: var(--ultra-light-blue);
+    border-color: var(--primary-blue);
+    transform: translateY(-2px);
+  }
+
+  .slot-time {
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 0.5rem;
+  }
+
+  .slot-details {
+    font-size: 0.9rem;
+    color: var(--text-light);
+    margin-bottom: 0.75rem;
+  }
+
+  .risk-bar {
+    height: 6px;
+    background: var(--border-gray);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 0.25rem;
+  }
+
+  .risk-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.5s ease;
+  }
+
+  .risk-high { background: var(--danger); }
+  .risk-medium { background: var(--warning); }
+  .risk-low { background: var(--success); }
+
+  .shelters-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .shelter {
+    background: var(--light-gray);
+    padding: 1rem;
+    border-radius: 12px;
+    border: 2px dashed var(--border-gray);
+    transition: all 0.3s ease;
+  }
+
+  .shelter:hover {
+    background: var(--ultra-light-blue);
+    border-color: var(--primary-blue);
+    border-style: solid;
+  }
+
+  .shelter-name {
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 0.25rem;
+  }
+
+  .shelter-type {
+    color: var(--text-light);
+    font-size: 0.9rem;
+  }
+
+  .actions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .action-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    border-radius: 12px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .severity-display {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding: 1.5rem;
+    background: var(--light-gray);
+    border-radius: 16px;
+    border: 1px solid var(--border-gray);
+  }
+
+  .severity-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+    font-weight: bold;
+  }
+
+  .severity-text {
+    flex: 1;
+  }
+
+  .severity-level {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+  }
+
+  .severity-score-text {
+    color: var(--text-light);
+    font-size: 0.9rem;
+  }
+
+  .checklist {
+    background: var(--light-gray);
+    padding: 1.5rem;
+    border-radius: 16px;
+    border: 1px solid var(--border-gray);
+    white-space: pre-wrap;
+    font-family: 'Inter', sans-serif;
+    line-height: 1.8;
+    color: var(--text-dark);
+  }
+
+  .report-area {
+    background: var(--light-gray);
+    padding: 1.5rem;
+    border-radius: 16px;
+    border: 1px solid var(--border-gray);
+    white-space: pre-wrap;
+    font-family: 'JetBrains Mono', 'Courier New', monospace;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: var(--text-dark);
+    max-height: 300px;
+    overflow-y: auto;
+    margin-top: 1rem;
+  }
+
+  .log-container {
+    background: var(--light-gray);
+    border-radius: 12px;
+    padding: 1rem;
+    max-height: 250px;
+    overflow-y: auto;
+    border: 1px solid var(--border-gray);
+  }
+
+  .log-entry {
+    color: var(--text-light);
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+    padding: 0.5rem;
+    border-radius: 6px;
+    background: var(--pure-white);
+    border-left: 3px solid var(--primary-blue);
+  }
+
+  footer {
+    margin-top: 3rem;
+    padding: 2rem;
+    text-align: center;
+    color: var(--text-light);
+    font-size: 0.9rem;
+    background: var(--light-gray);
+    border-radius: 20px 20px 0 0;
+    border: 1px solid var(--border-gray);
+  }
+
+  .loading {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid var(--border-gray);
+    border-top: 2px solid var(--primary-blue);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  @media (max-width: 768px) {
+    .header-container {
+      flex-direction: column;
+      gap: 1rem;
+      padding: 1rem;
+    }
+
+    .toolbar {
+      width: 100%;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .container {
+      padding: 1rem;
+      gap: 1rem;
+    }
+
+    .status-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .slots-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .actions-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .fade-in {
+    animation: fadeIn 0.6s ease-out;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+  }
+
+  .pulse {
+    animation: pulse 2s infinite;
+  }
+
+  .glass {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .interactive:hover {
+    transform: scale(1.02);
+    transition: transform 0.2s ease;
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="header-container">
+    <div class="logo">
+      <div class="logo-icon">⚡</div>
+      <h1>Advanced Disaster Prediction & Safety System</h1>
+    </div>
+    <div class="toolbar">
+      <input id="city" placeholder="Enter city (e.g., Mumbai, Delhi)" />
+      <button id="geoBtn" class="secondary">📍 Use Location</button>
+      <button id="scanBtn" class="primary">🔍 Scan Alerts</button>
+      <button id="autoBtn" class="secondary">🔄 Auto: Off</button>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+  <main class="card fade-in">
+    <div class="card-title">
+      <div class="icon">⚠️</div>
+      Live Risk Assessment & Incident Dashboard
+    </div>
+    <div class="card-subtitle">
+      Enter your city or use geolocation, then click <strong>Scan Alerts</strong> to analyze weather conditions and disaster risks for the next 48 hours with AI-powered predictions.
+    </div>
+
+    <div class="status-grid">
+      <div class="status-item interactive">
+        <div class="status-label">Current Location</div>
+        <div id="locName" class="status-value">—</div>
+      </div>
+      <div class="status-item interactive">
+        <div class="status-label">Weather Now</div>
+        <div id="now" class="status-value">—</div>
+      </div>
+      <div class="status-item interactive">
+        <div class="status-label">24h Rainfall</div>
+        <div id="rain24" class="status-value">—</div>
+      </div>
+    </div>
+
+    <div class="alerts-container">
+      <div class="card-title">
+        <div class="icon">🚨</div>
+        Detected Risk Alerts
+      </div>
+      <div id="alerts" class="alerts-grid">
+        <div style="color: var(--text-light); text-align: center; padding: 2rem; font-style: italic;">
+          No alerts detected yet. Click "Scan Alerts" to begin analysis.
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="card-title">
+        <div class="icon">⏰</div>
+        24-Hour Weather Forecast (3-hour intervals)
+      </div>
+      <div id="slots" class="slots-grid"></div>
+    </div>
+
+    <div>
+      <div class="card-title">
+        <div class="icon">🏥</div>
+        Nearby Emergency Shelters & Safe Locations
+      </div>
+      <div id="shelters" class="shelters-grid">
+        <div style="color: var(--text-light); text-align: center; padding: 1rem; font-style: italic;">
+          Emergency shelter locations will appear here after scanning. Includes schools, hospitals, and community centers.
+        </div>
+      </div>
+    </div>
+
+    <div class="actions-grid">
+      <button id="notifyBtn" class="action-btn secondary">🔔 Enable Notifications</button>
+      <button id="ttsBtn" class="action-btn secondary">🔊 Text-to-Speech</button>
+      <button id="geminiBtn" class="action-btn primary">🤖 AI Advisory</button>
+      <button id="exportBtn" class="action-btn secondary">📥 Export Report</button>
+    </div>
+
+    <div id="report" class="report-area" aria-live="polite"></div>
+  </main>
+
+  <aside class="sidebar">
+    <div class="card fade-in">
+      <div class="card-title">
+        <div class="icon">📊</div>
+        Risk Severity Level
+      </div>
+      <div class="severity-display">
+        <div id="severityIcon" class="severity-icon" style="background: var(--gradient-blue);">—</div>
+        <div class="severity-text">
+          <div id="globalSeverity" class="severity-level">No Data</div>
+          <div class="severity-score-text">Click scan to assess current risk level</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card fade-in">
+      <div class="card-title">
+        <div class="icon">✅</div>
+        Emergency Preparedness
+      </div>
+      <div id="checklist" class="checklist">
+        No recommendations available yet. 
+
+Scan your location to receive personalized survival checklist and emergency preparedness guidelines based on current weather conditions and predicted risks.
+      </div>
+    </div>
+
+    <div class="card fade-in">
+      <div class="card-title">
+        <div class="icon">⚙️</div>
+        Auto-scan Settings
+      </div>
+      <div class="card-subtitle">Configure automatic monitoring interval</div>
+      <input id="interval" type="number" value="0" min="0" placeholder="Seconds (0 = disabled)" style="width: 100%; margin-bottom: 0.5rem;" />
+      <div style="font-size: 0.85rem; color: var(--text-light); line-height: 1.5;">
+        Set to 0 to disable automatic scanning. Recommended: 300 seconds (5 minutes) for continuous monitoring.
+      </div>
+    </div>
+
+    <div class="card fade-in">
+      <div class="card-title">
+        <div class="icon">📝</div>
+        Activity Log
+      </div>
+      <div id="log" class="log-container"></div>
+    </div>
+  </aside>
+</div>
+
+<footer>
+  <p>⚡ Advanced Disaster Prediction System • Powered by OpenWeather API & Google Gemini AI</p>
+  <p style="margin-top: 0.5rem; font-size: 0.8rem;">
+    For production deployment, implement server-side API management and integrate with SMS/WhatsApp services via Twilio for emergency notifications.
+  </p>
+</footer>
+
+<script>
+
+
+const state = { 
+  data: null, 
+  city: "", 
+  autoId: null, 
+  lastReport: "",
+  isScanning: false 
+};
+
+const elements = {
+  city: document.getElementById('city'),
+  geoBtn: document.getElementById('geoBtn'),
+  scanBtn: document.getElementById('scanBtn'),
+  autoBtn: document.getElementById('autoBtn'),
+  notifyBtn: document.getElementById('notifyBtn'),
+  ttsBtn: document.getElementById('ttsBtn'),
+  geminiBtn: document.getElementById('geminiBtn'),
+  exportBtn: document.getElementById('exportBtn'),
+  interval: document.getElementById('interval'),
+  alerts: document.getElementById('alerts'),
+  slots: document.getElementById('slots'),
+  locName: document.getElementById('locName'),
+  now: document.getElementById('now'),
+  rain24: document.getElementById('rain24'),
+  shelters: document.getElementById('shelters'),
+  globalSeverity: document.getElementById('globalSeverity'),
+  severityIcon: document.getElementById('severityIcon'),
+  checklist: document.getElementById('checklist'),
+  report: document.getElementById('report'),
+  log: document.getElementById('log')
+};
+
+function log(message) {
+  const entry = document.createElement('div');
+  entry.className = 'log-entry';
+  entry.textContent = `${new Date().toLocaleTimeString()} — ${message}`;
+  elements.log.prepend(entry);
+  
+  const entries = elements.log.children;
+  if (entries.length > 10) {
+    elements.log.removeChild(entries[entries.length - 1]);
+  }
+}
+
+function humanizeLevel(value) {
+  return value >= 70 ? "HIGH" : value >= 45 ? "MEDIUM" : "LOW";
+}
+
+function getSeverityClass(value) {
+  return value >= 70 ? 'high' : value >= 45 ? 'medium' : 'low';
+}
+
+function getSeverityColor(value) {
+  return value >= 70 ? 'var(--danger)' : value >= 45 ? 'var(--warning)' : 'var(--success)';
+}
+
+async function fetchForecastByCity(city) {
+  const url = `https://api.openweathermap.org/data/2.5/forecast?q=${encodeURIComponent(city)}&appid=${OW_API_KEY}&units=metric`;
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error("City not found or API error. Please check the city name.");
+  }
+  return response.json();
+}
+
+async function fetchForecastByCoords(lat, lon) {
+  const url = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${OW_API_KEY}&units=metric`;
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error("Location error. Please try again.");
+  }
+  return response.json();
+}
+
+function sumRainfall(weatherList) {
+  return weatherList.reduce((total, slot) => total + (slot.rain?.["3h"] || 0), 0);
+}
+
+function calculateHeatIndex(tempC, humidity) {
+  const tempF = tempC * 9/5 + 32;
+  const rh = humidity;
+  const hi = -42.379 + 2.04901523*tempF + 10.14333127*rh - 0.22475541*tempF*rh - 0.00683783*tempF*tempF - 0.05481717*rh*rh + 0.00122874*tempF*tempF*rh + 0.00085282*tempF*rh*rh - 0.00000199*tempF*tempF*rh*rh;
+  return (hi - 32) * 5/9;
+}
+
+function detectRiskAlerts(data) {
+  const next24Hours = data.list.slice(0, 8);
+  const next48Hours = data.list.slice(0, 16);
+
+  const rainfall24h = sumRainfall(next24Hours);
+  const rainfall48h = sumRainfall(next48Hours);
+  const maxWindSpeed = Math.max(...next24Hours.map(slot => slot.wind?.speed || 0));
+  const hasThunderstorm = next48Hours.some(slot => (slot.weather?.[0]?.main || "").includes("Thunderstorm"));
+  const maxPrecipitationProb = Math.max(...next24Hours.map(slot => Math.round((slot.pop || 0) * 100)));
+  const maxFeelsLike = next48Hours.reduce((max, slot) => Math.max(max, slot.main.feels_like || slot.main.temp), -999);
+  const hasLowVisibility = next24Hours.some(slot => (slot.visibility || 10000) < 3000);
+
+  const maxHeatIndex = next48Hours.reduce((max, slot) => {
+    const temp = slot.main.feels_like || slot.main.temp;
+    const humidity = slot.main.humidity || 50;
+    const heatIndex = calculateHeatIndex(temp, humidity);
+    return Math.max(max, heatIndex);
+  }, -999);
+
+  const alerts = [];
+
+  if (rainfall24h >= 30 || rainfall48h >= 50 || (maxPrecipitationProb >= 80 && rainfall24h >= 15)) {
+    const severity = Math.min(100, Math.round((rainfall48h / 60) * 80 + (maxPrecipitationProb / 100) * 20));
+    alerts.push({
+      type: "Flood/Heavy Rain",
+      severity: severity,
+      message: severity >= 70 
+        ? "Heavy rainfall expected. High risk of waterlogging and localized flooding in low-lying areas."
+        : "Moderate to heavy rain expected. Monitor for potential waterlogging in vulnerable areas.",
+      evidence: `24h rainfall: ${rainfall24h.toFixed(1)}mm, 48h: ${rainfall48h.toFixed(1)}mm, max precipitation probability: ${maxPrecipitationProb}%`
+    });
+  }
+
+  if (hasThunderstorm || maxWindSpeed >= 15) {
+    const severity = Math.min(100, Math.round((hasThunderstorm ? 60 : 0) + Math.min(40, (maxWindSpeed - 8) * 6)));
+    alerts.push({
+      type: "Thunderstorm/High Wind",
+      severity: severity,
+      message: severity >= 70
+        ? "Severe thunderstorms with strong winds expected. Risk of falling trees and power outages."
+        : "Thunderstorms and windy conditions possible. Secure loose outdoor items.",
+      evidence: `Max wind speed: ${maxWindSpeed.toFixed(1)} m/s, thunderstorm activity: ${hasThunderstorm ? 'Yes' : 'No'}`
+    });
+  }
+
+  if (maxHeatIndex >= 40 || maxFeelsLike >= 40) {
+    const severity = Math.min(100, Math.round((maxHeatIndex - 35) * 10 + 50));
+    alerts.push({
+      type: "Heatwave/Extreme Heat",
+      severity: severity,
+      message: severity >= 70
+        ? "Extreme heat conditions expected. High risk of heat-related illnesses. Limit outdoor exposure."
+        : "Hot and humid conditions expected. Stay hydrated and avoid prolonged sun exposure.",
+      evidence: `Peak heat index: ${Math.round(maxHeatIndex)}°C, max feels-like temperature: ${Math.round(maxFeelsLike)}°C`
+    });
+  }
+
+  if (hasLowVisibility) {
+    alerts.push({
+      type: "Low Visibility/Fog",
+      severity: 55,
+      message: "Reduced visibility conditions expected. Exercise caution while driving and use headlights.",
+      evidence: "Forecast indicates visibility may drop below 3km in the next 24 hours"
+    });
+  }
+
+  if (alerts.length === 0) {
+    alerts.push({
+      type: "No Significant Risk",
+      severity: 15,
+      message: "Weather conditions appear stable with no major hazards expected in the next 24 hours.",
+      evidence: "All monitored parameters are within safe thresholds"
+    });
+  }
+
+  alerts.sort((a, b) => b.severity - a.severity);
+  return { alerts, rainfall24h, rainfall48h };
+}
+
+async function fetchNearbyShelters(lat, lon, radius = 3000) {
+  const query = `
+[out:json][timeout:25];
+(
+  node(around:${radius},${lat},${lon})["amenity"~"school|hospital|clinic|shelter|community_centre"];
+  way(around:${radius},${lat},${lon})["amenity"~"school|hospital|clinic|shelter|community_centre"];
+  relation(around:${radius},${lat},${lon})["amenity"~"school|hospital|clinic|shelter|community_centre"];
+);
+out center 20;`;
+
+  const response = await fetch("https://overpass-api.de/api/interpreter", {
+    method: "POST",
+    body: query
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch shelter information");
+  }
+
+  const data = await response.json();
+  return data.elements.map(element => ({
+    id: element.id,
+    name: (element.tags?.name || element.tags?.official_name || element.tags?.amenity || "Unnamed Facility"),
+    type: element.tags?.amenity || "facility",
+    lat: element.lat || element.center?.lat,
+    lon: element.lon || element.center?.lon,
+    address: (element.tags?.['addr:full'] || element.tags?.['addr:street'] || element.tags?.['addr:city'] || "")
+  }));
+}
+
+function renderMainDashboard(analysisResult, weatherData) {
+  elements.locName.textContent = `${weatherData.city.name}, ${weatherData.city.country}`;
+  elements.now.textContent = `${Math.round(weatherData.list[0].main.temp)}°C • ${weatherData.list[0].weather[0].description}`;
+  elements.rain24.textContent = `${analysisResult.rainfall24h.toFixed(1)} mm`;
+
+  elements.alerts.innerHTML = analysisResult.alerts.map(alert => {
+    const severityClass = getSeverityClass(alert.severity);
+    return `
+      <div class="alert alert-${severityClass} fade-in">
+        <div class="alert-header">
+          <div class="alert-title">
+            <span class="severity-badge severity-${severityClass}">${humanizeLevel(alert.severity)}</span>
+            <strong>${alert.type}</strong>
+          </div>
+          <div class="alert-score">${alert.severity}</div>
+        </div>
+        <div class="alert-message">${alert.message}</div>
+        <div class="alert-evidence">${alert.evidence}</div>
+      </div>
+    `;
+  }).join("");
+
+  const next24 = weatherData.list.slice(0, 8);
+  elements.slots.innerHTML = next24.map(slot => {
+    const temp = Math.round(slot.main.feels_like || slot.main.temp);
+    const precipProb = Math.round((slot.pop || 0) * 100);
+    const windSpeed = Math.round(slot.wind?.speed || 0);
+    const rainfall = slot.rain?.["3h"] || 0;
+    const time = new Date(slot.dt * 1000).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+    
+    const riskScore = Math.min(100, Math.round(precipProb * 0.6 + Math.max(0, (windSpeed - 8)) * 8 + Math.min(40, rainfall * 4)));
+    const riskClass = riskScore >= 70 ? 'high' : riskScore >= 45 ? 'medium' : 'low';
+    
+    return `
+      <div class="slot interactive">
+        <div class="slot-time">${time} • ${temp}°C</div>
+        <div class="slot-details">
+          ${slot.weather[0].main} • Rain: ${precipProb}% • Wind: ${windSpeed} m/s • ${rainfall.toFixed(1)}mm
+        </div>
+        <div class="risk-bar">
+          <div class="risk-fill risk-${riskClass}" style="width: ${riskScore}%"></div>
+        </div>
+        <div style="font-size: 0.8rem; color: var(--text-light);">Risk Level: ${riskScore}/100</div>
+      </div>
+    `;
+  }).join("");
+
+  const topAlert = analysisResult.alerts[0];
+  const severityClass = getSeverityClass(topAlert.severity);
+  const severityColor = getSeverityColor(topAlert.severity);
+  
+  elements.globalSeverity.textContent = `${humanizeLevel(topAlert.severity)} (${topAlert.severity}/100)`;
+  elements.severityIcon.style.background = severityColor;
+  elements.severityIcon.textContent = topAlert.severity >= 70 ? '🚨' : topAlert.severity >= 45 ? '⚠️' : '✅';
+
+  elements.checklist.textContent = generateSurvivalChecklist(analysisResult.alerts);
+  
+  const report = generateReportText(analysisResult.alerts, weatherData, analysisResult);
+  elements.report.textContent = report;
+  state.lastReport = report;
+
+  log(`Analysis complete. Primary risk: ${topAlert.type} (${topAlert.severity}/100)`);
+}
+
+function generateSurvivalChecklist(alerts) {
+  const checklist = [];
+  const alertTypes = alerts.map(alert => alert.type);
+
+  if (alertTypes.some(type => type.includes("Flood") || type.includes("Rain"))) {
+    checklist.push(
+      "• Move to higher ground if in flood-prone area",
+      "• Avoid driving through flooded streets",
+      "• Keep emergency supplies ready: flashlight, batteries, water, medications",
+      "• Disconnect electrical appliances if water level rises"
+    );
+  }
+
+  if (alertTypes.some(type => type.includes("Thunderstorm") || type.includes("Wind"))) {
+    checklist.push(
+      "• Secure outdoor furniture and loose items",
+      "• Stay indoors during severe weather",
+      "• Avoid areas with tall trees or power lines",
+      "• Keep away from windows during storms"
+    );
+  }
+
+  if (alertTypes.some(type => type.includes("Heat"))) {
+    checklist.push(
+      "• Stay hydrated - drink water regularly",
+      "• Limit outdoor activities between 11 AM - 4 PM",
+      "• Check on elderly neighbors and relatives",
+      "• Use cooling centers if available"
+    );
+  }
+
+  if (alertTypes.some(type => type.includes("Visibility") || type.includes("Fog"))) {
+    checklist.push(
+      "• Use headlights while driving",
+      "• Reduce driving speed in low visibility",
+      "• Keep safe distance from other vehicles"
+    );
+  }
+
+  if (checklist.length === 0) {
+    checklist.push(
+      "• Weather conditions appear stable",
+      "• Continue monitoring for updates",
+      "• Keep emergency kit accessible as a precaution"
+    );
+  }
+
+  return checklist.join('\n');
+}
+
+function generateReportText(alerts, weatherData, analysisResult) {
+  const timestamp = new Date().toISOString();
+  const location = `${weatherData.city.name}, ${weatherData.city.country}`;
+  
+  let report = `DISASTER RISK ASSESSMENT REPORT\n`;
+  report += `Generated: ${timestamp}\n`;
+  report += `Location: ${location}\n`;
+  report += `Coordinates: ${weatherData.city.coord.lat.toFixed(3)}, ${weatherData.city.coord.lon.toFixed(3)}\n\n`;
+  
+  report += `CURRENT CONDITIONS:\n`;
+  report += `Temperature: ${Math.round(weatherData.list[0].main.temp)}°C\n`;
+  report += `Conditions: ${weatherData.list[0].weather[0].description}\n`;
+  report += `Humidity: ${weatherData.list[0].main.humidity}%\n`;
+  report += `Wind Speed: ${Math.round(weatherData.list[0].wind?.speed || 0)} m/s\n\n`;
+  
+  report += `RAINFALL FORECAST:\n`;
+  report += `Next 24 hours: ${analysisResult.rainfall24h.toFixed(1)} mm\n`;
+  report += `Next 48 hours: ${analysisResult.rainfall48h.toFixed(1)} mm\n\n`;
+  
+  report += `RISK ALERTS (${alerts.length}):\n`;
+  alerts.forEach((alert, index) => {
+    report += `${index + 1}. ${alert.type} - ${humanizeLevel(alert.severity)} (${alert.severity}/100)\n`;
+    report += `   ${alert.message}\n`;
+    report += `   Evidence: ${alert.evidence}\n\n`;
+  });
+
+  return report;
+}
+
+async function performCityScan(cityName) {
+  try {
+    state.isScanning = true;
+    elements.scanBtn.disabled = true;
+    elements.scanBtn.innerHTML = '<div class="spinner"></div> Scanning...';
+    elements.alerts.innerHTML = '<div class="loading"><div class="spinner"></div> Analyzing weather data and risk factors...</div>';
+
+    const weatherData = await fetchForecastByCity(cityName);
+    state.data = weatherData;
+    
+    const analysisResult = detectRiskAlerts(weatherData);
+    renderMainDashboard(analysisResult, weatherData);
+
+    try {
+      const { lat, lon } = weatherData.city.coord;
+      const shelters = await fetchNearbyShelters(lat, lon, 3000);
+      
+      elements.shelters.innerHTML = shelters.slice(0, 8).map(shelter => `
+        <div class="shelter interactive">
+          <div class="shelter-name">${shelter.name}</div>
+          <div class="shelter-type">${shelter.type} ${shelter.address ? `• ${shelter.address}` : ''}</div>
+          <div style="font-size: 0.8rem; color: var(--text-light); margin-top: 0.25rem;">
+            📍 ${shelter.lat?.toFixed(4)}, ${shelter.lon?.toFixed(4)}
+          </div>
+        </div>
+      `).join('') || '<div style="color: var(--text-light); font-style: italic; padding: 1rem;">No emergency shelters found in the area.</div>';
+      
+    } catch (shelterError) {
+      elements.shelters.innerHTML = `<div style="color: var(--text-light); font-style: italic; padding: 1rem;">⚠️ Unable to load shelter information: ${shelterError.message}</div>`;
+    }
+
+    if (Notification?.permission === "granted") {
+      const highRiskAlerts = analysisResult.alerts.filter(alert => alert.severity >= 70);
+      highRiskAlerts.slice(0, 2).forEach(alert => {
+        try {
+          new Notification(`${alert.type} - ${humanizeLevel(alert.severity)}`, {
+            body: alert.message,
+            icon: '/favicon.ico'
+          });
+        } catch (e) {
+          console.warn("Notification error:", e);
+        }
+      });
+    }
+
+  } catch (error) {
+    elements.alerts.innerHTML = `
+      <div class="alert alert-high">
+        <div class="alert-header">
+          <div class="alert-title">
+            <span class="severity-badge severity-high">ERROR</span>
+            <strong>Scan Failed</strong>
+          </div>
+        </div>
+        <div class="alert-message">Unable to fetch weather data: ${error.message}</div>
+        <div class="alert-evidence">Please check your city name and try again.</div>
+      </div>
+    `;
+    log(`Scan failed: ${error.message}`);
+  } finally {
+    state.isScanning = false;
+    elements.scanBtn.disabled = false;
+    elements.scanBtn.innerHTML = '🔍 Scan Alerts';
+  }
+}
+
+async function generateAIAdvisory(alerts, weatherData, aggregates) {
+  const facts = [
+    `Location: ${weatherData.city.name}, ${weatherData.city.country}`,
+    `Current: ${Math.round(weatherData.list[0].main.temp)}°C, ${weatherData.list[0].weather[0].description}`,
+    `24h Rainfall: ${aggregates.rainfall24h.toFixed(1)}mm, 48h Rainfall: ${aggregates.rainfall48h.toFixed(1)}mm`
+  ].concat(
+    alerts.slice(0, 3).map(alert => 
+      `${alert.type} ${humanizeLevel(alert.severity)} (${alert.severity}/100) — ${alert.evidence}`
+    )
+  ).join('\n');
+
+  const systemPrompt = `You are an expert emergency management advisor. Create a concise, actionable advisory in English with Hindi terms where appropriate. Include:
+1) Clear headline summarizing the situation
+2) 3-4 immediate action items for residents
+3) Brief safety checklist for the next 24 hours
+Keep it factual, urgent but not alarmist. Focus on practical steps people can take now.`;
+
+  const userPrompt = `Weather Analysis:\n${facts}\n\nProvide emergency advisory for residents and local authorities.`;
+
+  const requestBody = {
+    contents: [{
+      role: "user",
+      parts: [{ text: systemPrompt + "\n\n" + userPrompt }]
+    }],
+    generationConfig: {
+      temperature: 0.2,
+      topP: 0.8,
+      maxOutputTokens: 400
+    }
+  };
+
+  const response = await fetch(GEMINI_ENDPOINT, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(requestBody)
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`AI service error: ${errorText || response.status}`);
+  }
+
+  const result = await response.json();
+  return result?.candidates?.[0]?.content?.parts?.map(part => part.text).join('\n') || "Unable to generate advisory";
+}
+
+function exportReport(alerts, weatherData, analysisResult) {
+  const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+  const filename = `disaster-risk-report-${weatherData.city.name}-${timestamp}.md`;
+  
+  let markdown = `# Disaster Risk Assessment Report\n\n`;
+  markdown += `**Location:** ${weatherData.city.name}, ${weatherData.city.country}\n`;
+  markdown += `**Generated:** ${new Date().toLocaleString()}\n`;
+  markdown += `**Coordinates:** ${weatherData.city.coord.lat.toFixed(3)}, ${weatherData.city.coord.lon.toFixed(3)}\n\n`;
+  
+  markdown += `## Current Conditions\n\n`;
+  markdown += `- **Temperature:** ${Math.round(weatherData.list[0].main.temp)}°C\n`;
+  markdown += `- **Weather:** ${weatherData.list[0].weather[0].description}\n`;
+  markdown += `- **Humidity:** ${weatherData.list[0].main.humidity}%\n`;
+  markdown += `- **Wind Speed:** ${Math.round(weatherData.list[0].wind?.speed || 0)} m/s\n\n`;
+  
+  markdown += `## Rainfall Forecast\n\n`;
+  markdown += `- **Next 24 hours:** ${analysisResult.rainfall24h.toFixed(1)} mm\n`;
+  markdown += `- **Next 48 hours:** ${analysisResult.rainfall48h.toFixed(1)} mm\n\n`;
+  
+  markdown += `## Risk Alerts\n\n`;
+  alerts.forEach((alert, index) => {
+    markdown += `### ${index + 1}. ${alert.type}\n`;
+    markdown += `**Severity:** ${humanizeLevel(alert.severity)} (${alert.severity}/100)\n\n`;
+    markdown += `**Description:** ${alert.message}\n\n`;
+    markdown += `**Evidence:** ${alert.evidence}\n\n`;
+  });
+  
+  markdown += `## Emergency Preparedness Checklist\n\n`;
+  generateSurvivalChecklist(alerts).split('\n').forEach(item => {
+    if (item.trim()) markdown += `${item}\n`;
+  });
+  
+  const blob = new Blob([markdown], { type: 'text/markdown' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(url);
+  
+  log(`Report exported: ${filename}`);
+}
+
+
+elements.scanBtn.addEventListener('click', () => {
+  const city = elements.city.value.trim();
+  if (!city) {
+    alert("Please enter a city name or use location detection.");
+    return;
+  }
+  performCityScan(city);
+});
+
+elements.geoBtn.addEventListener('click', () => {
+  if (!navigator.geolocation) {
+    alert("Geolocation is not supported by this browser.");
+    return;
+  }
+
+  elements.geoBtn.innerHTML = '<div class="spinner"></div> Locating...';
+  elements.geoBtn.disabled = true;
+
+  navigator.geolocation.getCurrentPosition(
+    async (position) => {
+      try {
+        const { latitude, longitude } = position.coords;
+        const weatherData = await fetchForecastByCoords(latitude, longitude);
+        elements.city.value = weatherData.city.name;
+        performCityScan(weatherData.city.name);
+      } catch (error) {
+        elements.alerts.innerHTML = `
+          <div class="alert alert-high">
+            <div class="alert-message">Location fetch failed: ${error.message}</div>
+          </div>
+        `;
+      } finally {
+        elements.geoBtn.innerHTML = '📍 Use Location';
+        elements.geoBtn.disabled = false;
+      }
+    },
+    (error) => {
+      alert(`Location error: ${error.message}`);
+      elements.geoBtn.innerHTML = '📍 Use Location';
+      elements.geoBtn.disabled = false;
+    },
+    { enableHighAccuracy: true, timeout: 10000, maximumAge: 300000 }
+  );
+});
+
+elements.notifyBtn.addEventListener('click', async () => {
+  if (!("Notification" in window)) {
+    alert("This browser does not support notifications.");
+    return;
+  }
+
+  if (Notification.permission === "granted") {
+    alert("Notifications are already enabled.");
+    return;
+  }
+
+  const permission = await Notification.requestPermission();
+  elements.notifyBtn.textContent = permission === "granted" 
+    ? "🔔 Notifications: Enabled" 
+    : "🔔 Enable Notifications";
+  
+  if (permission === "granted") {
+    new Notification("Disaster Alert System", {
+      body: "You will now receive emergency notifications for high-risk weather conditions."
+    });
+  }
+});
+
+elements.ttsBtn.addEventListener('click', () => {
+  const text = state.lastReport || elements.report.textContent || "No report available to read.";
+  if (!text.trim()) return;
+
+  try {
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = 0.9;
+    utterance.pitch = 1.0;
+    utterance.volume = 1.0;
+    window.speechSynthesis.speak(utterance);
+    log("Text-to-speech started");
+  } catch (error) {
+    alert("Text-to-speech is not supported in this browser.");
+  }
+});
+
+elements.geminiBtn.addEventListener('click', async () => {
+  if (!state.data) {
+    alert("Please scan a location first to generate AI advisory.");
+    return;
+  }
+
+  elements.geminiBtn.disabled = true;
+  elements.geminiBtn.innerHTML = '<div class="spinner"></div> Generating...';
+
+  try {
+    const analysisResult = detectRiskAlerts(state.data);
+    const advisory = await generateAIAdvisory(
+      analysisResult.alerts, 
+      state.data, 
+      { rainfall24h: analysisResult.rainfall24h, rainfall48h: analysisResult.rainfall48h }
+    );
+    
+    elements.report.textContent = advisory;
+    state.lastReport = advisory;
+    log("AI advisory generated successfully");
+    
+  } catch (error) {
+    elements.report.textContent = `Failed to generate AI advisory: ${error.message}`;
+    log(`AI advisory failed: ${error.message}`);
+  } finally {
+    elements.geminiBtn.disabled = false;
+    elements.geminiBtn.innerHTML = '🤖 AI Advisory';
+  }
+});
+
+elements.exportBtn.addEventListener('click', () => {
+  if (!state.data) {
+    alert("Please scan a location first to export a report.");
+    return;
+  }
+
+  const analysisResult = detectRiskAlerts(state.data);
+  exportReport(analysisResult.alerts, state.data, analysisResult);
+});
+
+elements.autoBtn.addEventListener('click', () => {
+  if (state.autoId) {
+    clearInterval(state.autoId);
+    state.autoId = null;
+    elements.autoBtn.textContent = "🔄 Auto: Off";
+    elements.autoBtn.classList.remove('primary');
+    elements.autoBtn.classList.add('secondary');
+    log("Auto-scan disabled");
+  } else {
+    const intervalSeconds = Math.max(30, Number(elements.interval.value) || 300);
+    state.autoId = setInterval(() => {
+      const city = elements.city.value.trim();
+      if (city && !state.isScanning) {
+        performCityScan(city);
+      }
+    }, intervalSeconds * 1000);
+    
+    elements.autoBtn.textContent = "🔄 Auto: On";
+    elements.autoBtn.classList.remove('secondary');
+    elements.autoBtn.classList.add('primary');
+    log(`Auto-scan enabled: every ${intervalSeconds} seconds`);
+  }
+});
+
+elements.interval.addEventListener('change', () => {
+  if (state.autoId) {
+    clearInterval(state.autoId);
+    const intervalSeconds = Math.max(30, Number(elements.interval.value) || 300);
+    state.autoId = setInterval(() => {
+      const city = elements.city.value.trim();
+      if (city && !state.isScanning) {
+        performCityScan(city);
+      }
+    }, intervalSeconds * 1000);
+    log(`Auto-scan interval updated: ${intervalSeconds} seconds`);
+  }
+});
+
+(function initialize() {
+  if ("Notification" in window && Notification.permission === "granted") {
+    elements.notifyBtn.textContent = "🔔 Notifications: Enabled";
+  }
+
+  log("Advanced Disaster Prediction System initialized and ready");
+  log("Enter a city name or use location detection to begin risk assessment");
+
+  elements.city.placeholder = "Enter city (e.g., Mumbai, Delhi, Kolkata, Chennai)";
+})();
+</script>
+</body>
+</html>

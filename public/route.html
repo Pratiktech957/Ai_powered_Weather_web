@@ -1,0 +1,1559 @@
+<!doctype html>
+<html lang="hi">
+<head>
+  <meta charset="utf-8" />
+  <title>Rural SafeRoute — Aapda Suraksha Sahayak</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.Default.css" />
+  
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{
+      font-family:'Segoe UI',system-ui,Arial,sans-serif;
+      background:linear-gradient(135deg,#f1f5f9 0%,#e2e8f0 100%);
+      color:#0f172a;
+      line-height:1.6;
+    }
+    
+    header{
+      background:linear-gradient(135deg,#1e40af 0%,#2563eb 100%);
+      color:white;
+      padding:16px 20px;
+      box-shadow:0 8px 32px rgba(37,99,235,0.3);
+      position:relative;
+    }
+    
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      margin-bottom:12px;
+    }
+    
+    .brand .logo{
+      width:52px;
+      height:52px;
+      border-radius:16px;
+      background:linear-gradient(135deg,#fff 0%,#f8fafc 100%);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:#2563eb;
+      font-weight:900;
+      font-size:1.4rem;
+      box-shadow:0 4px 12px rgba(0,0,0,0.15);
+    }
+    
+    .brand-text h1{
+      font-size:1.4rem;
+      margin:0;
+      font-weight:800;
+    }
+    
+    .brand-text .tagline{
+      font-size:0.9rem;
+      opacity:0.9;
+      margin-top:2px;
+    }
+    
+    #controls{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+      gap:10px;
+      align-items:center;
+    }
+    
+    .btn{
+      background:rgba(255,255,255,0.95);
+      color:#1e40af;
+      border:2px solid rgba(255,255,255,0.3);
+      padding:12px 16px;
+      border-radius:12px;
+      font-weight:700;
+      cursor:pointer;
+      box-shadow:0 4px 16px rgba(0,0,0,0.1);
+      transition:all 0.3s ease;
+      text-align:center;
+      font-size:0.95rem;
+      backdrop-filter:blur(10px);
+    }
+    
+    .btn:hover{
+      transform:translateY(-2px);
+      box-shadow:0 8px 24px rgba(0,0,0,0.2);
+      background:rgba(255,255,255,1);
+    }
+    
+    .btn.active{
+      background:#fbbf24;
+      color:#92400e;
+      border-color:#fbbf24;
+    }
+    
+    .btn.danger{
+      background:#ef4444;
+      color:white;
+      border-color:#ef4444;
+    }
+    
+    .btn.success{
+      background:#10b981;
+      color:white;
+      border-color:#10b981;
+    }
+    
+    #map{
+      height:70vh;
+      margin:16px;
+      border-radius:16px;
+      border:3px solid #e2e8f0;
+      box-shadow:0 16px 64px rgba(0,0,0,0.1);
+      position:relative;
+    }
+    
+    #infoBar{
+      padding:16px 20px;
+      background:linear-gradient(135deg,#fff 0%,#f8fafc 100%);
+      border-radius:16px;
+      margin:0 16px 16px;
+      border:2px solid #e2e8f0;
+      box-shadow:0 8px 32px rgba(0,0,0,0.08);
+      display:flex;
+      align-items:center;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+    
+    .status-badge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 16px;
+      border-radius:999px;
+      font-weight:800;
+      font-size:0.9rem;
+    }
+    
+    .status-badge.live{
+      background:linear-gradient(135deg,#dcfce7 0%,#bbf7d0 100%);
+      color:#065f46;
+      animation:pulse 2s infinite;
+    }
+    
+    .status-badge.warning{
+      background:linear-gradient(135deg,#fef3c7 0%,#fde68a 100%);
+      color:#92400e;
+    }
+    
+    .status-badge.danger{
+      background:linear-gradient(135deg,#fecaca 0%,#fca5a5 100%);
+      color:#991b1b;
+    }
+    
+    @keyframes pulse{
+      0%,100%{opacity:1}
+      50%{opacity:0.8}
+    }
+    
+    .legend{
+      position:absolute;
+      right:16px;
+      bottom:16px;
+      background:rgba(255,255,255,0.95);
+      padding:12px;
+      border-radius:12px;
+      border:2px solid #e2e8f0;
+      box-shadow:0 16px 64px rgba(0,0,0,0.15);
+      backdrop-filter:blur(10px);
+      z-index:1000;
+    }
+    
+    .legend-title{
+      font-weight:700;
+      margin-bottom:8px;
+      color:#374151;
+    }
+    
+    .legend .row{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      margin:6px 0;
+      font-size:0.9rem;
+    }
+    
+    .dot{
+      width:14px;
+      height:14px;
+      border-radius:50%;
+      border:2px solid rgba(255,255,255,0.8);
+      box-shadow:0 2px 8px rgba(0,0,0,0.2);
+    }
+    
+    .red{background:#ef4444}
+    .orange{background:#f97316}
+    .blue{background:#3b82f6}
+    .purple{background:#8b5cf6}
+    .green{background:#10b981}
+    
+    .emergency-panel{
+      position:fixed;
+      top:0;
+      left:0;
+      right:0;
+      background:linear-gradient(135deg,#dc2626 0%,#ef4444 100%);
+      color:white;
+      padding:12px 20px;
+      text-align:center;
+      font-weight:700;
+      z-index:2000;
+      transform:translateY(-100%);
+      transition:transform 0.3s ease;
+      box-shadow:0 4px 20px rgba(220,38,38,0.3);
+    }
+    
+    .emergency-panel.show{
+      transform:translateY(0);
+    }
+    
+    .weather-info{
+      background:rgba(255,255,255,0.1);
+      border-radius:12px;
+      padding:12px;
+      margin-top:12px;
+      backdrop-filter:blur(10px);
+    }
+    
+    .weather-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
+      gap:12px;
+      margin-top:8px;
+    }
+    
+    .weather-item{
+      text-align:center;
+      padding:8px;
+      background:rgba(255,255,255,0.1);
+      border-radius:8px;
+    }
+    
+    .weather-value{
+      font-size:1.2rem;
+      font-weight:800;
+      margin-bottom:4px;
+    }
+    
+    .weather-label{
+      font-size:0.8rem;
+      opacity:0.9;
+    }
+    
+    footer{
+      background:linear-gradient(135deg,#374151 0%,#4b5563 100%);
+      color:#e5e7eb;
+      padding:20px;
+      text-align:center;
+      font-size:0.9rem;
+      margin-top:20px;
+    }
+    
+    .loading{
+      display:inline-block;
+      width:16px;
+      height:16px;
+      border:2px solid #f3f4f6;
+      border-radius:50%;
+      border-top-color:#3b82f6;
+      animation:spin 1s linear infinite;
+    }
+    
+    @keyframes spin{
+      to{transform:rotate(360deg)}
+    }
+    
+    @media(max-width:768px){
+      header{padding:12px 16px}
+      #controls{grid-template-columns:repeat(2,1fr)}
+      .btn{padding:10px 12px;font-size:0.9rem}
+      #map{margin:12px;height:60vh}
+      .legend{right:12px;bottom:12px}
+      .brand{margin-bottom:8px}
+      .brand .logo{width:44px;height:44px}
+      .brand-text h1{font-size:1.2rem}
+    }
+    
+    .error-panel{
+      background:#fee2e2;
+      color:#dc2626;
+      padding:20px;
+      margin:16px;
+      border-radius:12px;
+      border:2px solid #fca5a5;
+      text-align:center;
+    }
+    
+    .loading-screen{
+      position:fixed;
+      top:0;
+      left:0;
+      right:0;
+      bottom:0;
+      background:rgba(255,255,255,0.95);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      z-index:9999;
+      backdrop-filter:blur(5px);
+    }
+    
+    .loading-content{
+      text-align:center;
+      padding:20px;
+    }
+    
+    .tile-status {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      z-index: 1001;
+      backdrop-filter: blur(5px);
+    }
+    
+    .tile-status.success { background: rgba(16, 185, 129, 0.8); }
+    .tile-status.error { background: rgba(239, 68, 68, 0.8); }
+    .tile-status.loading { 
+      background: rgba(59, 130, 246, 0.8);
+      animation: pulse 2s infinite;
+    }
+  </style>
+</head>
+<body>
+  <div id="loadingScreen" class="loading-screen">
+    <div class="loading-content">
+      <div class="loading-spinner"></div>
+      <h3>🛡️ Rural SafeRoute</h3>
+      <p>Loading emergency navigation system...</p>
+    </div>
+  </div>
+
+  <div id="emergencyPanel" class="emergency-panel">
+    🚨 <span id="emergencyText">Emergency Alert</span> 🚨
+  </div>
+
+  <header>
+    <div class="brand">
+      <div class="logo">🛡️</div>
+      <div class="brand-text">
+        <h1>Rural SafeRoute</h1>
+        <div class="tagline">Aapda Suraksha Sahayak - Jeevan Bachao</div>
+      </div>
+    </div>
+
+    <div class="weather-info" id="weatherInfo" style="display:none;">
+      <div style="font-weight:700;margin-bottom:8px;">📍 <span id="locationName">Location Loading...</span></div>
+      <div class="weather-grid" id="weatherGrid">
+      </div>
+    </div>
+
+    <div id="controls">
+      <button class="btn" id="btnLocate">📍 Mera Location</button>
+      <button class="btn" id="btnWeather">🌤️ Mausam</button>
+      <button class="btn" id="btnHotspots">🔥 Aag Khatre</button>
+      <button class="btn" id="btnCyclone">🌀 Toofan Alert</button>
+      <button class="btn success" id="btnRoute">🛣️ Safe Raasta</button>
+      <button class="btn" id="btnClear">🧹 Saaf Karo</button>
+    </div>
+  </header>
+
+  <div id="map">
+    <div id="tileStatus" class="tile-status loading">🔄 Loading map...</div>
+  </div>
+
+  <div id="infoBar">
+    <div class="status-badge live" id="statusBadge">
+      <span class="loading"></span>
+      <span>Ready</span>
+    </div>
+    <span id="statusText">Suraksha ke liye button dabayiye - Mausam / Aag / Toofan / Route</span>
+  </div>
+
+  <div class="legend">
+    <div class="legend-title">Map Guide</div>
+    <div class="row"><span class="dot red"></span> Aag / Fire Spots</div>
+    <div class="row"><span class="dot orange"></span> Medium Risk</div>
+    <div class="row"><span class="dot blue"></span> Cyclone Path</div>
+    <div class="row"><span class="dot purple"></span> Safe Shelters</div>
+    <div class="row"><span class="dot green"></span> Your Location</div>
+  </div>
+
+  <footer>
+    <div>© 2025 Rural SafeRoute - Emergency Navigation System</div>
+    <div style="margin-top:8px;font-size:0.8rem;opacity:0.8;">
+      Jeevan bachane ke liye banaya gaya • Production ready with error handling
+    </div>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.js"></script>
+
+<script>
+let map, hotspotCluster, cycloneLayer, routeLine, weatherLayer, userLocation, shelterLayer;
+
+
+
+const shelters = [
+  { name: "District Collector Office - Bhubaneswar", lat: 20.2961, lon: 85.8245, type: "government" },
+  { name: "Community Hall - Cuttack", lat: 20.4625, lon: 85.8828, type: "community" },
+  { name: "PHC Health Center - Puri", lat: 19.8135, lon: 85.8312, type: "health" },
+  { name: "School Shelter - Berhampur", lat: 19.3149, lon: 84.7941, type: "school" },
+  { name: "Gram Panchayat - Sambalpur", lat: 21.4669, lon: 83.9812, type: "government" },
+  { name: "Relief Camp - Balasore", lat: 21.4942, lon: 86.9336, type: "relief" },
+  { name: "Temple Shelter - Konark", lat: 19.8876, lon: 86.0977, type: "religious" },
+  { name: "Community Center - Rourkela", lat: 22.2604, lon: 84.8536, type: "community" },
+];
+
+function initializeApp() {
+  let attempts = 0;
+  const maxAttempts = 50;
+  
+  function checkLibraries() {
+    attempts++;
+    
+    if (typeof L !== 'undefined' && L.markerClusterGroup) {
+      console.log('✅ All libraries loaded successfully');
+      hideLoadingScreen();
+      startApp();
+      return;
+    }
+    
+    if (attempts < maxAttempts) {
+      setTimeout(checkLibraries, 100);
+    } else {
+      console.error('❌ Libraries failed to load');
+      hideLoadingScreen();
+      showError('Map libraries failed to load. Please check your internet connection and refresh the page.');
+    }
+  }
+  
+  checkLibraries();
+}
+
+function hideLoadingScreen() {
+  const loadingScreen = document.getElementById('loadingScreen');
+  if (loadingScreen) {
+    loadingScreen.style.display = 'none';
+  }
+}
+
+function startApp() {
+  try {
+    map = L.map('map', {
+      center: [20.5937, 78.9629],
+      zoom: 5,
+      zoomControl: true,
+      scrollWheelZoom: true
+    });
+
+    const tileOptions = [
+      {
+        url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+        attribution: '© OpenStreetMap contributors',
+        name: 'OpenStreetMap'
+      },
+      {
+        url: 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png',
+        attribution: '© CartoDB © OpenStreetMap contributors',
+        name: 'CartoDB Light'
+      },
+      {
+        url: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+        attribution: '© CartoDB © OpenStreetMap contributors',
+        name: 'CartoDB Voyager'
+      },
+      {
+        url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
+        attribution: '© Esri © OpenStreetMap contributors',
+        name: 'Esri World Street'
+      }
+    ];
+
+    let currentTileIndex = 0;
+    let activeTileLayer = null;
+    const tileStatus = document.getElementById('tileStatus');
+
+    function updateTileStatus(message, type = 'loading') {
+      if (tileStatus) {
+        tileStatus.textContent = message;
+        tileStatus.className = `tile-status ${type}`;
+        
+        if (type === 'success') {
+          setTimeout(() => {
+            tileStatus.style.display = 'none';
+          }, 3000);
+        }
+      }
+    }
+
+    function addTileLayer(index = 0) {
+      try {
+        if (index >= tileOptions.length) {
+          console.error('All tile servers failed, using offline map');
+          updateTileStatus('🗺️ Offline Mode', 'error');
+          showOfflineMapMessage();
+          return;
+        }
+
+        if (activeTileLayer) {
+          map.removeLayer(activeTileLayer);
+        }
+
+        const option = tileOptions[index];
+        console.log(`Trying tile server: ${option.name}`);
+        updateTileStatus(`🔄 Loading ${option.name}...`, 'loading');
+
+        activeTileLayer = L.tileLayer(option.url, { 
+          attribution: option.attribution + ' | SafeRoute Emergency System',
+          maxZoom: 18,
+          tileSize: 256,
+          timeout: 10000,
+          errorTileUrl: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=='
+        });
+
+        let tileErrorCount = 0;
+        const maxErrors = 3;
+        let successfulTiles = 0;
+
+        activeTileLayer.on('tileerror', function(e) {
+          tileErrorCount++;
+          console.warn(`Tile error #${tileErrorCount} for ${option.name}`);
+          
+          if (tileErrorCount >= maxErrors && successfulTiles === 0) {
+            console.log(`Too many errors for ${option.name}, trying next server...`);
+            updateTileStatus(`❌ ${option.name} failed`, 'error');
+            setTimeout(() => {
+              currentTileIndex++;
+              addTileLayer(currentTileIndex);
+            }, 1000);
+          }
+        });
+
+        activeTileLayer.on('tileload', function() {
+          successfulTiles++;
+          if (successfulTiles === 1) {
+            console.log(`✅ Tiles loading successfully from ${option.name}`);
+            updateTileStatus(`✅ ${option.name} connected`, 'success');
+          }
+        });
+
+        activeTileLayer.on('loading', function() {
+          updateTileStatus(`🔄 Loading ${option.name}...`, 'loading');
+        });
+
+        activeTileLayer.addTo(map);
+
+        setTimeout(() => {
+          if (successfulTiles === 0 && tileErrorCount < maxErrors) {
+            console.log(`Timeout for ${option.name}, trying next...`);
+            currentTileIndex++;
+            addTileLayer(currentTileIndex);
+          }
+        }, 8000);
+
+      } catch (error) {
+        console.error(`Error loading tiles from server ${index}:`, error);
+        updateTileStatus(`❌ Server ${index + 1} failed`, 'error');
+        setTimeout(() => {
+          addTileLayer(index + 1);
+        }, 1000);
+      }
+    }
+
+    function showOfflineMapMessage() {
+      const mapContainer = document.getElementById('map');
+      const offlineDiv = document.createElement('div');
+      offlineDiv.style.cssText = `
+        position: absolute;
+        top: 50px;
+        left: 10px;
+        right: 10px;
+        background: rgba(220, 38, 38, 0.9);
+        color: white;
+        padding: 16px;
+        border-radius: 12px;
+        text-align: center;
+        font-weight: bold;
+        z-index: 1000;
+        backdrop-filter: blur(5px);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+      `;
+      offlineDiv.innerHTML = `
+        <div style="font-size: 1.2rem; margin-bottom: 8px;">🗺️ Map Offline</div>
+        <div>All tile servers unavailable</div>
+        <div style="font-size: 0.9rem; margin-top: 8px; opacity: 0.9;">
+          Emergency features still work • Location and routing active
+        </div>
+        <button onclick="this.parentElement.remove(); location.reload();" 
+                style="margin-top: 12px; padding: 8px 16px; background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.5); border-radius: 6px; cursor: pointer;">
+          🔄 Retry Loading
+        </button>
+      `;
+      mapContainer.appendChild(offlineDiv);
+      
+      updateStatus("Map tiles offline - Emergency features still active", 'warning');
+    }
+
+    addTileLayer(currentTileIndex);
+
+    hotspotCluster = L.markerClusterGroup({
+      iconCreateFunction: function(cluster) {
+        const count = cluster.getChildCount();
+        let className = 'marker-cluster-small';
+        if (count > 10) className = 'marker-cluster-medium';
+        if (count > 20) className = 'marker-cluster-large';
+        return L.divIcon({ 
+          html: '<div><span>' + count + '</span></div>', 
+          className: 'marker-cluster ' + className, 
+          iconSize: L.point(40, 40) 
+        });
+      }
+    });
+
+    cycloneLayer = null;
+    routeLine = null;
+    weatherLayer = null;
+    userLocation = null;
+
+    createShelterLayer();
+
+    initializeUI();
+
+    bindButtonEvents();
+
+    console.log('✅ App initialized successfully');
+    updateStatus("तैयार है - Emergency navigation के लिए button दबाएं!");
+
+  } catch (error) {
+    console.error('App initialization failed:', error);
+    showError('Map initialization failed. Please refresh the page.');
+  }
+}
+
+function createShelterLayer() {
+  try {
+    const icons = {
+      government: '🏛️',
+      health: '🏥', 
+      school: '🏫',
+      community: '🏢',
+      relief: '⛺',
+      religious: '🕌'
+    };
+
+    shelterLayer = L.layerGroup(shelters.map(s => {
+      const marker = L.circleMarker([s.lat, s.lon], { 
+        radius: 8, 
+        color: '#8b5cf6', 
+        fillColor: '#8b5cf6', 
+        fillOpacity: 0.9,
+        weight: 2
+      });
+
+      marker.bindPopup(`
+        <div style="text-align:center;padding:8px;">
+          <div style="font-size:1.5rem;margin-bottom:8px;">${icons[s.type] || '🏠'}</div>
+          <b>${s.name}</b><br>
+          <span style="color:#666;font-size:0.9rem;">Safe Shelter Point</span><br>
+          <button onclick="getDirections(${s.lat}, ${s.lon}, '${s.name}')" 
+                  style="margin-top:8px;padding:6px 12px;background:#2563eb;color:white;border:none;border-radius:6px;cursor:pointer;">
+            📍 Directions Lao
+          </button>
+        </div>
+      `);
+      
+      return marker;
+    }));
+
+    shelterLayer.addTo(map);
+  } catch (error) {
+    console.error('Shelter layer creation failed:', error);
+  }
+}
+
+function initializeUI() {
+  window.statusEl = document.getElementById('statusText');
+  window.statusBadge = document.getElementById('statusBadge');
+  window.emergencyPanel = document.getElementById('emergencyPanel');
+  window.weatherInfo = document.getElementById('weatherInfo');
+}
+
+function updateStatus(text, type = 'info') {
+  if (!window.statusEl || !window.statusBadge) return;
+  
+  window.statusEl.innerText = text;
+  const badge = window.statusBadge;
+  badge.className = 'status-badge';
+  
+  if (type === 'loading') {
+    badge.innerHTML = '<span class="loading"></span><span>Processing...</span>';
+    badge.classList.add('live');
+  } else if (type === 'success') {
+    badge.innerHTML = '✅<span>Success</span>';
+    badge.classList.add('live');
+  } else if (type === 'warning') {
+    badge.innerHTML = '⚠️<span>Warning</span>';
+    badge.classList.add('warning');
+  } else if (type === 'danger') {
+    badge.innerHTML = '🚨<span>Alert</span>';
+    badge.classList.add('danger');
+  } else {
+    badge.innerHTML = '📡<span>Ready</span>';
+    badge.classList.add('live');
+  }
+}
+
+function showEmergencyAlert(message, duration = 5000) {
+  if (!window.emergencyPanel) return;
+  
+  const panel = window.emergencyPanel;
+  const text = document.getElementById('emergencyText');
+  if (text) text.textContent = message;
+  panel.classList.add('show');
+  
+  setTimeout(() => {
+    panel.classList.remove('show');
+  }, duration);
+}
+
+function showError(message) {
+  const mapEl = document.getElementById('map');
+  if (mapEl) {
+    mapEl.innerHTML = `
+      <div class="error-panel">
+        <h3>🗺️ ${message}</h3>
+        <p>Internet connection check करें और page refresh करें</p>
+        <button onclick="window.location.reload()" style="padding:8px 16px;background:#dc2626;color:white;border:none;border-radius:6px;margin-top:12px;cursor:pointer;">
+          🔄 Refresh करें
+        </button>
+      </div>
+    `;
+  }
+}
+
+async function loadWeatherData() {
+  try {
+    updateStatus("Mausam ki jankari la rahe hain...", 'loading');
+    
+    if (!userLocation) {
+      await getUserLocation();
+    }
+    
+    if (!userLocation) {
+      userLocation = { lat: 20.2961, lng: 85.8245 };
+    }
+    
+    try {
+      const weatherUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${userLocation.lat}&lon=${userLocation.lng}&appid=${WEATHER_KEY}&units=metric&lang=hi`;
+      
+      const response = await fetch(weatherUrl);
+      if (response.ok) {
+        const weatherData = await response.json();
+        displayWeatherInfo(weatherData);
+        
+        const mainWeather = weatherData.weather[0].main.toLowerCase();
+        if (mainWeather.includes('thunderstorm') || mainWeather.includes('storm')) {
+          showEmergencyAlert("🌩️ तेज़ तूफ़ान चेतावनी! सुरक्षित जगह जाएं!");
+          updateStatus("तूफ़ान की चेतावनी - सुरक्षित रहें!", 'danger');
+        } else if (mainWeather.includes('rain')) {
+          updateStatus(`भारी बारिश: ${weatherData.name} - सावधान रहें!`, 'warning');
+        } else {
+          updateStatus(`मौसम अपडेट: ${weatherData.name} - ${weatherData.weather[0].description}`, 'success');
+        }
+        return;
+      }
+    } catch (apiError) {
+      console.warn("Weather API failed, using demo data:", apiError);
+    }
+    
+    const mockData = {
+      name: "Bhubaneswar (Demo)",
+      main: { temp: 28, humidity: 65, pressure: 1013 },
+      weather: [{ main: "Clear", description: "साफ़ मौसम", icon: "01d" }],
+      wind: { speed: 3.5 },
+      visibility: 10000
+    };
+    
+    displayWeatherInfo(mockData);
+    updateStatus("मौसम डेटा (Demo) - Clear weather, 28°C", 'success');
+    
+  } catch (error) {
+    console.error("Weather error:", error);
+    updateStatus("मौसम डेटा लोड नहीं हो सका", 'warning');
+  }
+}
+
+function displayWeatherInfo(data) {
+  if (!window.weatherInfo) return;
+  
+  const locationName = document.getElementById('locationName');
+  const weatherGrid = document.getElementById('weatherGrid');
+  
+  if (locationName) locationName.textContent = data.name || "Current Location";
+  
+  if (weatherGrid) {
+    weatherGrid.innerHTML = `
+      <div class="weather-item">
+        <div class="weather-value">${Math.round(data.main.temp)}°C</div>
+        <div class="weather-label">Temperature</div>
+      </div>
+      <div class="weather-item">
+        <div class="weather-value">${data.main.humidity}%</div>
+        <div class="weather-label">Humidity</div>
+      </div>
+      <div class="weather-item">
+        <div class="weather-value">${data.wind ? data.wind.speed : '3.5'}m/s</div>
+        <div class="weather-label">Wind Speed</div>
+      </div>
+      <div class="weather-item">
+        <div class="weather-value">${data.visibility ? (data.visibility/1000).toFixed(1) : '10.0'}km</div>
+        <div class="weather-label">Visibility</div>
+      </div>
+    `;
+  }
+  
+  window.weatherInfo.style.display = 'block';
+}
+
+async function loadHotspots() {
+  try {
+    updateStatus("Fire hotspots detect kar rahe hain...", 'loading');
+    
+    try {
+      const url = `https://firms.modapis.eosdis.nasa.gov/api/country/csv/VIIRS_SNPP_NRT/IND/1/${NASA_KEY}`;
+      
+      const response = await fetch(url);
+      if (response.ok) {
+        const csv = await response.text();
+        const lines = csv.trim().split(/\r?\n/);
+        
+        if (lines.length > 1) {
+          return processHotspotsCSV(lines);
+        }
+      }
+    } catch (apiError) {
+      console.warn("NASA API failed, using demo data:", apiError);
+    }
+    
+    loadDemoHotspots();
+    
+  } catch (error) {
+    console.error("Hotspot Error:", error);
+    updateStatus("Fire data load नहीं हुआ - Demo data loaded", 'warning');
+    loadDemoHotspots();
+  }
+}
+
+function processHotspotsCSV(lines) {
+  hotspotCluster.clearLayers();
+
+  const header = lines.shift().split(',');
+  const iLat = header.indexOf('latitude');
+  const iLon = header.indexOf('longitude');
+  const iConf = header.findIndex(h => h.includes('confidence'));
+  const iBright = header.findIndex(h => h.includes('bright'));
+
+  if (iLat === -1 || iLon === -1) {
+    throw new Error('Invalid CSV format');
+  }
+
+  let dangerCount = 0, mediumCount = 0, lowCount = 0;
+
+  lines.forEach(line => {
+    try {
+      const cols = line.split(',');
+      const lat = parseFloat(cols[iLat]);
+      const lon = parseFloat(cols[iLon]);
+      
+      if (isNaN(lat) || isNaN(lon)) return;
+      
+      const confidence = parseFloat(cols[iConf] || '50') || 50;
+      const brightness = cols[iBright] || 'N/A';
+      
+      let color = '#f97316', risk = 'Medium', riskText = 'साधारण खतरा';
+      
+      if (confidence >= 80) {
+        color = '#ef4444';
+        risk = 'High';
+        riskText = 'उच्च खतरा';
+        dangerCount++;
+      } else if (confidence < 40) {
+        color = '#f59e0b';
+        risk = 'Low';
+        riskText = 'कम खतरा';
+        lowCount++;
+      } else {
+        mediumCount++;
+      }
+      
+      const marker = L.circleMarker([lat, lon], { 
+        radius: risk === 'High' ? 8 : 6, 
+        color: color, 
+        fillColor: color, 
+        fillOpacity: 0.8,
+        weight: 2
+      });
+      
+      marker.bindPopup(`
+        <div style="text-align:center;padding:8px;">
+          <div style="font-size:1.5rem;margin-bottom:8px;">🔥</div>
+          <b>Fire Hotspot</b><br>
+          <span style="color:${color};font-weight:bold;">${riskText}</span><br>
+          <small>Confidence: ${confidence}%</small>
+        </div>
+      `);
+      
+      hotspotCluster.addLayer(marker);
+    } catch (err) {
+      console.warn('Error processing hotspot line:', err);
+    }
+  });
+
+  if (hotspotCluster.getLayers().length > 0) {
+    map.addLayer(hotspotCluster);
+    
+    if (hotspotCluster.getBounds && hotspotCluster.getBounds().isValid()) {
+      map.fitBounds(hotspotCluster.getBounds(), { padding: [20, 20] });
+    }
+  }
+  
+  const total = dangerCount + mediumCount + lowCount;
+  updateStatus(`${total} Fire spots mile - High:${dangerCount}, Medium:${mediumCount}, Low:${lowCount}`, 
+    dangerCount > 5 ? 'danger' : mediumCount > 10 ? 'warning' : 'success');
+  
+  if (dangerCount > 3) {
+    showEmergencyAlert(`🔥 ${dangerCount} High-Risk Fire Areas nearby! सावधान रहें!`);
+  }
+}
+
+function loadDemoHotspots() {
+  try {
+    hotspotCluster.clearLayers();
+    
+    const demoHotspots = [
+      { name: "Forest Fire - Simlipal", lat: 21.6273, lon: 86.5009, confidence: 85, type: "High" },
+      { name: "Crop Burn - Cuttack", lat: 20.4625, lon: 85.8828, confidence: 60, type: "Medium" },
+      { name: "Grass Fire - Koraput", lat: 18.8098, lon: 82.7109, confidence: 45, type: "Medium" },
+      { name: "Industrial Fire - Rourkela", lat: 22.2604, lon: 84.8536, confidence: 90, type: "High" },
+      { name: "Wildfire - Mayurbhanj", lat: 21.9288, lon: 86.7378, confidence: 75, type: "High" }
+    ];
+    
+    let dangerCount = 0, mediumCount = 0;
+    
+    demoHotspots.forEach(hotspot => {
+      const isHigh = hotspot.confidence >= 75;
+      const color = isHigh ? '#ef4444' : '#f97316';
+      const risk = isHigh ? 'उच्च खतरा' : 'साधारण खतरा';
+      
+      if (isHigh) dangerCount++;
+      else mediumCount++;
+      
+      const marker = L.circleMarker([hotspot.lat, hotspot.lon], { 
+        radius: isHigh ? 8 : 6, 
+        color: color, 
+        fillColor: color, 
+        fillOpacity: 0.8,
+        weight: 2
+      });
+      
+      marker.bindPopup(`
+        <div style="text-align:center;padding:8px;">
+          <div style="font-size:1.5rem;margin-bottom:8px;">🔥</div>
+          <b>${hotspot.name}</b><br>
+          <span style="color:${color};font-weight:bold;">${risk}</span><br>
+          <small>Confidence: ${hotspot.confidence}% (Demo)</small>
+        </div>
+      `);
+      
+      hotspotCluster.addLayer(marker);
+    });
+    
+    map.addLayer(hotspotCluster);
+    
+    updateStatus(`Demo Fire Data: ${dangerCount} High, ${mediumCount} Medium risk areas`, 'warning');
+    
+    if (dangerCount > 2) {
+      showEmergencyAlert(`🔥 ${dangerCount} High-Risk Fire Areas (Demo)! सावधान रहें!`);
+    }
+    
+  } catch (err) {
+    console.error("Demo hotspots error:", err);
+  }
+}
+
+async function loadCyclone() {
+  try {
+    updateStatus("Cyclone alerts check kar rahe hain...", 'loading');
+    
+    try {
+      const url = "https://www.gdacs.org/gdacsapi/api/events/geteventlist/eventtype/TC";
+      const response = await fetch(url);
+      
+      if (response.ok) {
+        const text = await response.text();
+        const parser = new DOMParser();
+        const xmlDoc = parser.parseFromString(text, "text/xml");
+        const items = xmlDoc.getElementsByTagName('item');
+        
+        if (items.length > 0) {
+          return processRealCyclones(items);
+        }
+      }
+    } catch (apiError) {
+      console.warn("GDACS API failed, using demo data:", apiError);
+    }
+    
+    loadDemoCyclones();
+    
+  } catch (err) {
+    console.error("Cyclone Error:", err);
+    updateStatus("Cyclone data load नहीं हुआ - Demo loaded", 'warning');
+    loadDemoCyclones();
+  }
+}
+
+function processRealCyclones(items) {
+  if (cycloneLayer) {
+    map.removeLayer(cycloneLayer);
+  }
+  
+  cycloneLayer = L.layerGroup().addTo(map);
+  let dangerousCyclones = 0;
+
+  for (let i = 0; i < Math.min(items.length, 5); i++) {
+    try {
+      const item = items[i];
+      const title = item.getElementsByTagName('title')[0]?.textContent || `Cyclone ${i+1}`;
+      const description = item.getElementsByTagName('description')[0]?.textContent || '';
+      
+      const coordMatch = description.match(/(\d+\.?\d*),\s*(\d+\.?\d*)/);
+      const demoLocs = [
+        {lat: 19.0, lon: 84.0}, {lat: 15.0, lon: 68.0}, {lat: 13.0, lon: 80.0}
+      ];
+      const loc = coordMatch ? 
+        {lat: parseFloat(coordMatch[1]), lon: parseFloat(coordMatch[2])} : 
+        demoLocs[i % demoLocs.length];
+      
+      const severity = description.toLowerCase().includes('severe') ? 'High' : 'Medium';
+      if (severity === 'High') dangerousCyclones++;
+      
+      addCycloneMarker(loc.lat, loc.lon, title, severity);
+      
+    } catch (err) {
+      console.warn('Error processing cyclone:', err);
+    }
+  }
+  
+  updateStatus(`${cycloneLayer.getLayers().length} Real Cyclones detected`, 
+    dangerousCyclones > 0 ? 'danger' : 'warning');
+    
+  if (dangerousCyclones > 0) {
+    showEmergencyAlert(`🌀 ${dangerousCyclones} Dangerous Cyclones! सुरक्षित जगह जाएं!`);
+  }
+}
+
+function loadDemoCyclones() {
+  try {
+    if (cycloneLayer) {
+      map.removeLayer(cycloneLayer);
+    }
+    
+    cycloneLayer = L.layerGroup().addTo(map);
+    
+    const demoCyclones = [
+      {name: "Cyclone Amphan (Demo)", lat: 19.0, lon: 84.0, severity: "High"},
+      {name: "Depression BOB-01", lat: 15.0, lon: 68.0, severity: "Medium"},
+      {name: "Cyclonic Storm Yaas", lat: 21.0, lon: 87.0, severity: "High"}
+    ];
+    
+    let dangerousCount = 0;
+    
+    demoCyclones.forEach(cyclone => {
+      if (cyclone.severity === "High") dangerousCount++;
+      addCycloneMarker(cyclone.lat, cyclone.lon, cyclone.name, cyclone.severity);
+    });
+    
+    updateStatus(`Demo Cyclone Data: ${dangerousCount} High severity storms`, 'warning');
+    
+    if (dangerousCount > 0) {
+      showEmergencyAlert(`🌀 ${dangerousCount} Dangerous Cyclones (Demo)! तुरंत shelter जाएं!`);
+    }
+    
+  } catch (err) {
+    console.error("Demo cyclone error:", err);
+  }
+}
+
+function addCycloneMarker(lat, lon, title, severity) {
+  const marker = L.marker([lat, lon], {
+    title: title,
+    icon: L.divIcon({
+      html: '<div style="background:#3b82f6;color:white;border-radius:50%;width:30px;height:30px;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:18px;">🌀</div>',
+      iconSize: [30, 30],
+      className: 'cyclone-marker'
+    })
+  });
+  
+  marker.bindPopup(`
+    <div style="text-align:center;padding:8px;max-width:200px;">
+      <div style="font-size:1.5rem;margin-bottom:8px;">🌀</div>
+      <b>${title}</b><br>
+      <span style="color:${severity === 'High' ? '#dc2626' : '#f59e0b'};font-weight:bold;">Severity: ${severity}</span><br>
+      <button onclick="trackCyclone('${title}', ${lat}, ${lon})" 
+              style="margin-top:8px;padding:6px 12px;background:#3b82f6;color:white;border:none;border-radius:6px;cursor:pointer;">
+        📡 Track Karo
+      </button>
+    </div>
+  `);
+  
+  cycloneLayer.addLayer(marker);
+}
+
+async function findSafeRoute() {
+  try {
+    updateStatus("Safe route calculate kar rahe hain...", 'loading');
+    
+    if (!userLocation) {
+      await getUserLocation();
+    }
+    
+    if (!userLocation) {
+      updateStatus("Location permission chahiye route ke liye", 'warning');
+      return;
+    }
+
+    let nearest = shelters[0];
+    let minDistance = distanceKm(userLocation.lat, userLocation.lng, nearest.lat, nearest.lon);
+    
+    for (const shelter of shelters) {
+      const distance = distanceKm(userLocation.lat, userLocation.lng, shelter.lat, shelter.lon);
+      if (distance < minDistance) {
+        minDistance = distance;
+        nearest = shelter;
+      }
+    }
+
+    try {
+      const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${userLocation.lng},${userLocation.lat};${nearest.lon},${nearest.lat}?overview=full&geometries=geojson`;
+      
+      const response = await fetch(osrmUrl);
+      if (response.ok) {
+        const routeData = await response.json();
+        if (routeData.routes && routeData.routes.length > 0) {
+          return drawRoute(routeData.routes[0], nearest);
+        }
+      }
+    } catch (routeError) {
+      console.warn("OSRM routing failed, using direct route:", routeError);
+    }
+    
+    drawDirectRoute(nearest, minDistance);
+    
+  } catch (error) {
+    console.error("Route Error:", error);
+    updateStatus("Route banane में समस्या - manual navigation करें", 'warning');
+  }
+}
+
+function drawRoute(route, destination) {
+  const coordinates = route.geometry.coordinates.map(coord => [coord[1], coord[0]]);
+  const duration = Math.round(route.duration / 60);
+  const distance = (route.distance / 1000).toFixed(1);
+
+  if (routeLine) map.removeLayer(routeLine);
+
+  routeLine = L.polyline(coordinates, { 
+    color: '#10b981', 
+    weight: 6, 
+    opacity: 0.8,
+    dashArray: '10, 5'
+  }).addTo(map);
+
+  addRouteMarkers(destination, distance, duration);
+  
+  const bounds = L.latLngBounds(coordinates);
+  map.fitBounds(bounds, { padding: [30, 30] });
+
+  updateStatus(`✅ Safe route ready! ${distance}km in ~${duration} min`, 'success');
+}
+
+function drawDirectRoute(destination, distance) {
+  if (routeLine) map.removeLayer(routeLine);
+
+  const coordinates = [[userLocation.lat, userLocation.lng], [destination.lat, destination.lon]];
+  routeLine = L.polyline(coordinates, { 
+    color: '#10b981', 
+    weight: 6, 
+    opacity: 0.8,
+    dashArray: '15, 10'
+  }).addTo(map);
+
+  const estimatedTime = Math.round(distance * 2); 
+  
+  addRouteMarkers(destination, distance.toFixed(1), estimatedTime);
+  
+  const bounds = L.latLngBounds(coordinates);
+  map.fitBounds(bounds, { padding: [50, 50] });
+
+  updateStatus(`✅ Direct route to ${destination.name} - ${distance.toFixed(1)}km`, 'success');
+}
+
+function addRouteMarkers(destination, distance, duration) {
+  const startIcon = L.divIcon({
+    html: '<div style="background:#10b981;color:white;border-radius:50%;width:30px;height:30px;display:flex;align-items:center;justify-content:center;font-weight:bold;">🏠</div>',
+    iconSize: [30, 30],
+    className: 'start-marker'
+  });
+  
+  const endIcon = L.divIcon({
+    html: '<div style="background:#8b5cf6;color:white;border-radius:50%;width:30px;height:30px;display:flex;align-items:center;justify-content:center;font-weight:bold;">🛡️</div>',
+    iconSize: [30, 30],
+    className: 'end-marker'
+  });
+
+  L.marker([userLocation.lat, userLocation.lng], {icon: startIcon})
+    .addTo(map)
+    .bindPopup(`
+      <div style="text-align:center;padding:8px;">
+        <b>आपका स्थान</b><br>
+        <button onclick="shareLocation()" 
+                style="margin-top:8px;padding:6px 12px;background:#10b981;color:white;border:none;border-radius:6px;cursor:pointer;">
+          📱 Location Share करें
+        </button>
+      </div>
+    `);
+  
+  L.marker([destination.lat, destination.lon], {icon: endIcon})
+    .addTo(map)
+    .bindPopup(`
+      <div style="text-align:center;padding:8px;">
+        <b>${destination.name}</b><br>
+        <span style="color:#8b5cf6;font-weight:bold;">Safe Shelter</span><br>
+        <small>Distance: ${distance} km<br>Time: ~${duration} min</small><br>
+        <button onclick="startNavigation(${destination.lat}, ${destination.lon})" 
+                style="margin-top:8px;padding:6px 12px;background:#8b5cf6;color:white;border:none;border-radius:6px;cursor:pointer;">
+          🧭 Navigation Start करें
+        </button>
+      </div>
+    `);
+}
+
+
+async function getUserLocation() {
+  return new Promise((resolve, reject) => {
+    if (!navigator.geolocation) {
+      reject(new Error("Geolocation not supported"));
+      return;
+    }
+    
+    updateStatus("Location detect kar rahe hain...", 'loading');
+    
+    navigator.geolocation.getCurrentPosition(
+      position => {
+        userLocation = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude
+        };
+        console.log("User location obtained:", userLocation);
+        resolve(userLocation);
+      },
+      error => {
+        let errorMsg = "Location access denied";
+        switch(error.code) {
+          case error.PERMISSION_DENIED:
+            errorMsg = "Location permission denied - using demo location";
+            userLocation = { lat: 20.2961, lng: 85.8245 };
+            resolve(userLocation);
+            return;
+          case error.POSITION_UNAVAILABLE:
+            errorMsg = "Location information unavailable";
+            break;
+          case error.TIMEOUT:
+            errorMsg = "Location request timeout";
+            break;
+        }
+        console.error("Location error:", errorMsg);
+        reject(new Error(errorMsg));
+      },
+      { 
+        enableHighAccuracy: true, 
+        timeout: 15000, 
+        maximumAge: 300000 
+      }
+    );
+  });
+}
+
+function distanceKm(lat1, lon1, lat2, lon2) {
+  const R = 6371; 
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+  const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+            Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+            Math.sin(dLon/2) * Math.sin(dLon/2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  return R * c;
+}
+
+function toRad(value) {
+  return value * Math.PI / 180;
+}
+
+window.getDirections = function(lat, lon, name) {
+  if (userLocation) {
+    const googleUrl = `https://www.google.com/maps/dir/${userLocation.lat},${userLocation.lng}/${lat},${lon}`;
+    window.open(googleUrl, '_blank');
+  } else {
+    alert("Pehle अपना location allow करें!");
+  }
+};
+
+window.trackCyclone = function(name, lat, lon) {
+  try {
+    map.setView([lat, lon], 8);
+    updateStatus(`${name} को track कर रहे हैं`, 'warning');
+  } catch (err) {
+    console.error("Error tracking cyclone:", err);
+  }
+};
+
+window.shareLocation = function() {
+  if (userLocation && navigator.share) {
+    navigator.share({
+      title: 'My Emergency Location',
+      text: `Emergency location: ${userLocation.lat}, ${userLocation.lng}`,
+      url: `https://maps.google.com/?q=${userLocation.lat},${userLocation.lng}`
+    }).catch(err => console.log('Sharing failed:', err));
+  } else if (userLocation) {
+    const locationText = `Emergency Location: ${userLocation.lat.toFixed(4)}, ${userLocation.lng.toFixed(4)}\nhttps://maps.google.com/?q=${userLocation.lat},${userLocation.lng}`;
+    navigator.clipboard.writeText(locationText).then(() => {
+      alert("Location copied to clipboard!");
+    }).catch(() => {
+      alert(`Your location: ${userLocation.lat.toFixed(4)}, ${userLocation.lng.toFixed(4)}`);
+    });
+  }
+};
+
+window.startNavigation = function(lat, lon) {
+  const googleNav = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}&travelmode=driving`;
+  window.open(googleNav, '_blank');
+};
+
+function bindButtonEvents() {
+  const btnLocate = document.getElementById('btnLocate');
+  if (btnLocate) {
+    btnLocate.onclick = async function() {
+      try {
+        this.classList.add('active');
+        
+        await getUserLocation();
+        
+        map.setView([userLocation.lat, userLocation.lng], 12);
+        
+        const userIcon = L.divIcon({
+          html: '<div style="background:#10b981;color:white;border-radius:50%;width:30px;height:30px;display:flex;align-items:center;justify-content:center;font-weight:bold;">👤</div>',
+          iconSize: [30, 30],
+          className: 'user-marker'
+        });
+        
+        L.marker([userLocation.lat, userLocation.lng], {icon: userIcon})
+          .addTo(map)
+          .bindPopup(`
+            <div style="text-align:center;padding:8px;">
+              <b>आप यहाँ हैं</b><br>
+              <small>Lat: ${userLocation.lat.toFixed(4)}<br>Lng: ${userLocation.lng.toFixed(4)}</small><br>
+              <button onclick="shareLocation()" 
+                      style="margin-top:8px;padding:6px 12px;background:#10b981;color:white;border:none;border-radius:6px;cursor:pointer;">
+                📱 Share Location
+              </button>
+            </div>
+          `)
+          .openPopup();
+        
+        updateStatus("आपका location मिल गया!", 'success');
+        
+      } catch (error) {
+        console.error("Location error:", error);
+        updateStatus("Demo location loaded (Bhubaneswar)", 'warning');
+      } finally {
+        this.classList.remove('active');
+      }
+    };
+  }
+
+  const btnWeather = document.getElementById('btnWeather');
+  if (btnWeather) {
+    btnWeather.onclick = function() {
+      this.classList.add('active');
+      loadWeatherData().finally(() => {
+        this.classList.remove('active');
+      });
+    };
+  }
+
+  const btnHotspots = document.getElementById('btnHotspots');
+  if (btnHotspots) {
+    btnHotspots.onclick = function() {
+      this.classList.add('active');
+      loadHotspots().finally(() => {
+        this.classList.remove('active');
+      });
+    };
+  }
+
+  const btnCyclone = document.getElementById('btnCyclone');
+  if (btnCyclone) {
+    btnCyclone.onclick = function() {
+      this.classList.add('active');
+      loadCyclone().finally(() => {
+        this.classList.remove('active');
+      });
+    };
+  }
+
+  const btnRoute = document.getElementById('btnRoute');
+  if (btnRoute) {
+    btnRoute.onclick = function() {
+      this.classList.add('active');
+      findSafeRoute().finally(() => {
+        this.classList.remove('active');
+      });
+    };
+  }
+
+  const btnClear = document.getElementById('btnClear');
+  if (btnClear) {
+    btnClear.onclick = function() {
+      try {
+        clearAllLayers();
+        
+        map.setView([20.5937, 78.9629], 5);
+        
+        updateStatus("Map साफ कर दिया - नया search करें", 'info');
+        
+        if (window.weatherInfo) {
+          window.weatherInfo.style.display = 'none';
+        }
+        
+        if (window.emergencyPanel) {
+          window.emergencyPanel.classList.remove('show');
+        }
+        
+      } catch (err) {
+        console.error("Clear error:", err);
+        updateStatus("Clear करने में error", 'warning');
+      }
+    };
+  }
+}
+
+function clearAllLayers() {
+  if (hotspotCluster) {
+    hotspotCluster.clearLayers();
+    if (map.hasLayer(hotspotCluster)) {
+      map.removeLayer(hotspotCluster);
+    }
+  }
+  
+  if (cycloneLayer) {
+    map.removeLayer(cycloneLayer);
+    cycloneLayer = null;
+  }
+  
+  if (routeLine) {
+    map.removeLayer(routeLine);
+    routeLine = null;
+  }
+  
+  if (weatherLayer) {
+    map.removeLayer(weatherLayer);
+    weatherLayer = null;
+  }
+  
+  map.eachLayer(layer => {
+    if (layer instanceof L.Marker && !shelterLayer.hasLayer(layer)) {
+      map.removeLayer(layer);
+    }
+  });
+  
+  if (shelterLayer && !map.hasLayer(shelterLayer)) {
+    shelterLayer.addTo(map);
+  }
+}
+
+window.addEventListener('load', () => {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      position => {
+        userLocation = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude
+        };
+        console.log("Auto-detected location:", userLocation);
+      },
+      error => {
+        console.log("Auto-location failed:", error.message);
+        userLocation = { lat: 20.2961, lng: 85.8245 };
+      },
+      { timeout: 5000, maximumAge: 600000, enableHighAccuracy: false }
+    );
+  }
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.ctrlKey || e.metaKey) {
+    switch(e.key.toLowerCase()) {
+      case 'l':
+        e.preventDefault();
+        document.getElementById('btnLocate')?.click();
+        break;
+      case 'w':
+        e.preventDefault();
+        document.getElementById('btnWeather')?.click();
+        break;
+      case 'h':
+        e.preventDefault();
+        document.getElementById('btnHotspots')?.click();
+        break;
+      case 'c':
+        e.preventDefault();
+        document.getElementById('btnCyclone')?.click();
+        break;
+      case 'r':
+        e.preventDefault();
+        document.getElementById('btnRoute')?.click();
+        break;
+      case 'x':
+        e.preventDefault();
+        document.getElementById('btnClear')?.click();
+        break;
+    }
+  }
+});
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initializeApp);
+} else {
+  initializeApp();
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MausamLive - National Weather Service</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary-color: #1a365d;
+            --secondary-color: #2d5a87;
+            --accent-color: #4a90e2;
+            --text-dark: #2d3748;
+            --text-light: #718096;
+            --bg-light: #f7fafc;
+            --bg-white: #ffffff;
+            --shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: var(--text-dark);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: var(--shadow);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo i {
+            font-size: 32px;
+            color: var(--primary-color);
+        }
+
+        .logo h1 {
+            font-size: 28px;
+            color: var(--primary-color);
+            font-weight: 700;
+        }
+
+        .gov-badge {
+            background: var(--primary-color);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            margin-left: 10px;
+        }
+
+        nav ul {
+            display: flex;
+            gap: 30px;
+            list-style: none;
+        }
+
+        nav ul li a {
+            text-decoration: none;
+            color: var(--primary-color);
+            font-weight: 600;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        nav ul li a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -5px;
+            left: 0;
+            background: var(--accent-color);
+            transition: width 0.3s ease;
+        }
+
+        nav ul li a:hover::after {
+            width: 100%;
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .auth-buttons a {
+            text-decoration: none;
+            padding: 12px 20px;
+            border: 2px solid var(--primary-color);
+            border-radius: 8px;
+            color: var(--primary-color);
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .auth-buttons a::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: var(--primary-color);
+            transition: left 0.3s ease;
+            z-index: -1;
+        }
+
+        .auth-buttons a:hover::before {
+            left: 0;
+        }
+
+        .auth-buttons a:hover {
+            color: white;
+        }
+
+        .hero {
+            position: relative;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            overflow: hidden;
+        }
+
+        .hero-content {
+            z-index: 10;
+            max-width: 800px;
+            padding: 0 20px;
+        }
+
+        .hero h1 {
+            font-size: 4rem;
+            color: white;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            line-height: 1.2;
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 30px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .cta-button {
+            display: inline-block;
+            text-decoration: none;
+            background: linear-gradient(45deg, var(--accent-color), var(--secondary-color));
+            color: white;
+            padding: 18px 36px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, var(--secondary-color), var(--accent-color));
+            transition: left 0.3s ease;
+        }
+
+        .cta-button:hover::before {
+            left: 0;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .cta-button span {
+            position: relative;
+            z-index: 1;
+        }
+
+        #three-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .floating-elements {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .floating-icon {
+            position: absolute;
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 2rem;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .floating-icon:nth-child(1) { top: 20%; left: 10%; animation-delay: 0s; }
+        .floating-icon:nth-child(2) { top: 60%; left: 85%; animation-delay: 2s; }
+        .floating-icon:nth-child(3) { top: 40%; left: 15%; animation-delay: 4s; }
+        .floating-icon:nth-child(4) { top: 80%; left: 70%; animation-delay: 1s; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            33% { transform: translateY(-20px) rotate(5deg); }
+            66% { transform: translateY(10px) rotate(-3deg); }
+        }
+
+        .features {
+            padding: 120px 20px;
+            background: var(--bg-light);
+            position: relative;
+        }
+
+        .features::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 100px;
+            background: linear-gradient(to bottom, rgba(255,255,255,0) 0%, var(--bg-light) 100%);
+        }
+
+        .features h2 {
+            text-align: center;
+            font-size: 3rem;
+            margin-bottom: 60px;
+            color: var(--primary-color);
+            font-weight: 700;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .feature-card {
+            background: var(--bg-white);
+            padding: 40px 30px;
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(45deg, var(--accent-color), var(--secondary-color));
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .feature-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(45deg, var(--accent-color), var(--secondary-color));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            transition: all 0.3s ease;
+        }
+
+        .feature-icon i {
+            font-size: 2rem;
+            color: white;
+        }
+
+        .feature-card:hover .feature-icon {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .feature-card p {
+            color: var(--text-light);
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        .stats-section {
+            background: var(--primary-color);
+            color: white;
+            padding: 80px 20px;
+            text-align: center;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .stat-item h3 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--accent-color);
+        }
+
+        .stat-item p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .about-section {
+            padding: 120px 20px;
+            background: var(--bg-white);
+        }
+
+        .about-content {
+            max-width: 1000px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .about-section h2 {
+            font-size: 3rem;
+            color: var(--primary-color);
+            margin-bottom: 30px;
+            font-weight: 700;
+        }
+
+        .about-section p {
+            font-size: 1.2rem;
+            color: var(--text-light);
+            line-height: 1.8;
+            margin-bottom: 40px;
+        }
+
+        .newsletter-section {
+            background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%);
+            color: white;
+            padding: 100px 20px;
+            text-align: center;
+        }
+
+        .newsletter-section h2 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .newsletter-section p {
+            font-size: 1.2rem;
+            margin-bottom: 40px;
+            opacity: 0.9;
+        }
+
+        .newsletter-form {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            max-width: 500px;
+            margin: 0 auto;
+            flex-wrap: wrap;
+        }
+
+        .newsletter-form input {
+            flex: 1;
+            padding: 18px 24px;
+            border-radius: 50px;
+            border: none;
+            font-size: 1rem;
+            min-width: 250px;
+        }
+
+        .newsletter-form button {
+            padding: 18px 36px;
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .newsletter-form button:hover {
+            background: white;
+            color: var(--accent-color);
+            transform: translateY(-2px);
+        }
+
+        footer {
+            background: var(--text-dark);
+            color: white;
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .footer-content {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            opacity: 0.8;
+            transition: opacity 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            opacity: 1;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .hero p {
+                font-size: 1.1rem;
+            }
+
+            nav ul {
+                display: none;
+            }
+
+            header {
+                padding: 15px 20px;
+            }
+
+            .features h2, .about-section h2 {
+                font-size: 2rem;
+            }
+
+            .newsletter-form {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .newsletter-form input {
+                min-width: 100%;
+            }
+        }
+
+        .scroll-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-size: 2rem;
+            animation: bounce 2s infinite;
+            z-index: 10;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); }
+            40% { transform: translateX(-50%) translateY(-10px); }
+            60% { transform: translateX(-50%) translateY(-5px); }
+        }
+
+        .loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease;
+        }
+
+        .loader-content {
+            text-align: center;
+            color: white;
+        }
+
+        .loader-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="loader" id="loader">
+        <div class="loader-content">
+            <div class="loader-spinner"></div>
+            <h3>Loading MausamLive</h3>
+            <p>National Weather Service</p>
+        </div>
+    </div>
+
+    <header>
+        <div class="logo">
+            <i class="fas fa-cloud-sun"></i>
+            <h1>MausamLive</h1>
+            <span class="gov-badge">GOV</span>
+        </div>
+      
+        <div class="auth-buttons">
+            <a href="Login.html">Sign In</a>
+            <a href="signup.html">Register</a>
+        </div>
+    </header>
+
+    <section class="hero" id="home">
+        <canvas id="three-canvas"></canvas>
+        
+        <div class="floating-elements">
+            <div class="floating-icon"><i class="fas fa-cloud"></i></div>
+            <div class="floating-icon"><i class="fas fa-sun"></i></div>
+            <div class="floating-icon"><i class="fas fa-bolt"></i></div>
+            <div class="floating-icon"><i class="fas fa-snowflake"></i></div>
+        </div>
+
+        <div class="hero-content" data-aos="fade-up" data-aos-duration="1000">
+            <h1>National Weather Intelligence</h1>
+            <p>Advanced meteorological services for citizens, businesses, and emergency response teams.</p>
+            <a href="#features" class="cta-button">
+                <span>Explore Our Services</span>
+            </a>
+        </div>
+
+        <div class="scroll-indicator">
+            <i class="fas fa-chevron-down"></i>
+        </div>
+    </section>
+
+    <section class="stats-section">
+        <div class="stats-grid">
+            <div class="stat-item" data-aos="fade-up" data-aos-delay="0">
+                <h3 class="counter" data-target="50000">0</h3>
+                <p>Weather Stations</p>
+            </div>
+            <div class="stat-item" data-aos="fade-up" data-aos-delay="200">
+                <h3 class="counter" data-target="99.8">0</h3>
+                <p>Accuracy Rate (%)</p>
+            </div>
+            <div class="stat-item" data-aos="fade-up" data-aos-delay="400">
+                <h3 class="counter" data-target="24">0</h3>
+                <p>Hour Monitoring</p>
+            </div>
+            <div class="stat-item" data-aos="fade-up" data-aos-delay="600">
+                <h3 class="counter" data-target="15">0</h3>
+                <p>Day Forecasts</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="features" id="features">
+        <h2 data-aos="fade-up">Advanced Weather Services</h2>
+        <div class="feature-grid">
+            <div class="feature-card" data-aos="fade-up" data-aos-delay="0">
+                <div class="feature-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h3>Extended Forecasting</h3>
+                <p>15-day detailed forecasts with hourly precision and advanced modeling algorithms for maximum accuracy.</p>
+            </div>
+            <div class="feature-card" data-aos="fade-up" data-aos-delay="200">
+                <div class="feature-icon">
+                    <i class="fas fa-lungs"></i>
+                </div>
+                <h3>Air Quality Monitoring</h3>
+                <p>Real-time air pollution tracking with health advisories and environmental impact assessments.</p>
+            </div>
+            <div class="feature-card" data-aos="fade-up" data-aos-delay="400">
+                <div class="feature-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <h3>Emergency Alerts</h3>
+                <p>Critical weather warnings with multi-channel notifications for severe weather events and natural disasters.</p>
+            </div>
+            <div class="feature-card" data-aos="fade-up" data-aos-delay="600">
+                <div class="feature-icon">
+                    <i class="fas fa-satellite"></i>
+                </div>
+                <h3>Satellite Imagery</h3>
+                <p>High-resolution satellite data with advanced visualization and predictive storm tracking capabilities.</p>
+            </div>
+            <div class="feature-card" data-aos="fade-up" data-aos-delay="800">
+                <div class="feature-icon">
+                    <i class="fas fa-water"></i>
+                </div>
+                <h3>Marine Weather</h3>
+                <p>Specialized marine forecasting for shipping, fishing, and recreational water activities.</p>
+            </div>
+            <div class="feature-card" data-aos="fade-up" data-aos-delay="1000">
+                <div class="feature-icon">
+                    <i class="fas fa-plane"></i>
+                </div>
+                <h3>Aviation Weather</h3>
+                <p>Professional aviation meteorology services with turbulence forecasts and flight planning support.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="about-section" id="about">
+        <div class="about-content">
+            <h2 data-aos="fade-up">Trusted Weather Intelligence</h2>
+            <p data-aos="fade-up" data-aos-delay="200">
+                As the nation's premier meteorological service, MausamLive provides critical weather information to protect lives and property. Our advanced technology and expert meteorologists deliver the most accurate forecasts available, serving millions of citizens, businesses, and government agencies nationwide.
+            </p>
+            <p data-aos="fade-up" data-aos-delay="400">
+                With over 50,000 weather stations and cutting-edge satellite technology, we maintain the world's most comprehensive weather monitoring network. Our mission is to provide timely, accurate, and actionable weather information that helps communities prepare for and respond to weather-related challenges.
+            </p>
+        </div>
+    </section>
+
+    <section class="newsletter-section" id="contact">
+        <h2 data-aos="fade-up">Stay Weather Ready</h2>
+        <p data-aos="fade-up" data-aos-delay="200">Subscribe for critical weather alerts, seasonal forecasts, and important updates from the National Weather Service.</p>
+        <form class="newsletter-form" data-aos="fade-up" data-aos-delay="400">
+            <input type="email" placeholder="Enter your official email address" required>
+            <button type="submit">Subscribe to Alerts</button>
+        </form>
+    </section>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-links">
+                <a href="#privacy">Privacy Policy</a>
+                <a href="#terms">Terms of Service</a>
+                <a href="#accessibility">Accessibility</a>
+                <a href="#foia">FOIA</a>
+                <a href="#careers">Careers</a>
+            </div>
+            <p>&copy; 2025 MausamLive - National Weather Service. A U.S. Government Agency.</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    
+    <script>
+        AOS.init({
+            duration: 800,
+            easing: 'ease-in-out',
+            once: true
+        });
+
+        gsap.registerPlugin(ScrollTrigger);
+
+        window.addEventListener('load', () => {
+            gsap.to('#loader', {
+                opacity: 0,
+                duration: 0.5,
+                onComplete: () => {
+                    document.getElementById('loader').style.display = 'none';
+                }
+            });
+        });
+
+        let scene, camera, renderer, earthGroup, clouds, stars;
+
+        function initThree() {
+            // Scene
+            scene = new THREE.Scene();
+            
+            // Camera
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.z = 5;
+            
+            // Renderer
+            renderer = new THREE.WebGLRenderer({
+                canvas: document.getElementById('three-canvas'),
+                alpha: true,
+                antialias: true
+            });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setClearColor(0x000000, 0);
+
+            createEarth();
+            
+            createStars();
+            
+            const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
+            scene.add(ambientLight);
+            
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+            directionalLight.position.set(5, 5, 5);
+            scene.add(directionalLight);
+
+            animate();
+        }
+
+        function createEarth() {
+            earthGroup = new THREE.Group();
+            
+            
+            const earthGeometry = new THREE.SphereGeometry(1, 32, 32);
+            const earthMaterial = new THREE.MeshLambertMaterial({
+                color: 0x4a90e2,
+                transparent: true,
+                opacity: 0.8
+            });
+            const earth = new THREE.Mesh(earthGeometry, earthMaterial);
+            earthGroup.add(earth);
+
+            const cloudGeometry = new THREE.SphereGeometry(1.05, 32, 32);
+            const cloudMaterial = new THREE.MeshLambertMaterial({
+                color: 0xffffff,
+                transparent: true,
+                opacity: 0.3
+            });
+            clouds = new THREE.Mesh(cloudGeometry, cloudMaterial);
+            earthGroup.add(clouds);
+
+            const atmosphereGeometry = new THREE.SphereGeometry(1.2, 32, 32);
+            const atmosphereMaterial = new THREE.MeshBasicMaterial({
+                color: 0x87ceeb,
+                transparent: true,
+                opacity: 0.1,
+                side: THREE.BackSide
+            });
+            const atmosphere = new THREE.Mesh(atmosphereGeometry, atmosphereMaterial);
+            earthGroup.add(atmosphere);
+
+            scene.add(earthGroup);
+        }
+
+        function createStars() {
+            const starsGeometry = new THREE.BufferGeometry();
+            const starsCount = 1000;
+            const positions = new Float32Array(starsCount * 3);
+
+            for (let i = 0; i < starsCount * 3; i++) {
+                positions[i] = (Math.random() - 0.5) * 20;
+            }
+
+            starsGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            
+            const starsMaterial = new THREE.PointsMaterial({
+                color: 0xffffff,
+                size: 0.02,
+                transparent: true,
+                opacity: 0.8
+            });
+
+            stars = new THREE.Points(starsGeometry, starsMaterial);
+            scene.add(stars);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            if (earthGroup) {
+                earthGroup.rotation.y += 0.005;
+            }
+            
+            if (clouds) {
+                clouds.rotation.y += 0.007;
+            }
+
+            if (stars) {
+                stars.rotation.y += 0.0005;
+            }
+
+            if (mouse.x !== null && mouse.y !== null) {
+                earthGroup.rotation.x = mouse.y * 0.2;
+                earthGroup.rotation.y += mouse.x * 0.001;
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        const mouse = { x: null, y: null };
+        
+        window.addEventListener('mousemove', (event) => {
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+        });
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        initThree();
+
+        const counters = document.querySelectorAll('.counter');
+        
+        const animateCounter = (counter) => {
+            const target = parseFloat(counter.getAttribute('data-target'));
+            const increment = target / 100;
+            let current = 0;
+            
+            const updateCounter = () => {
+                if (current < target) {
+                    current += increment;
+                    counter.textContent = target % 1 === 0 ? Math.ceil(current).toLocaleString() : current.toFixed(1);
+                    requestAnimationFrame(updateCounter);
+                } else {
+                    counter.textContent = target % 1 === 0 ? target.toLocaleString() : target.toFixed(1);
+                }
+            };
+            updateCounter();
+        };
+
+        ScrollTrigger.create({
+            trigger: '.stats-section',
+            start: 'top 80%',
+            onEnter: () => {
+                counters.forEach(counter => animateCounter(counter));
+            }
+        });
+
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        ScrollTrigger.create({
+            start: 'top -80',
+            end: 99999,
+            toggleClass: {className: 'scrolled', targets: 'header'}
+        });
+
+        gsap.to('.hero-content', {
+            yPercent: -50,
+            ease: 'none',
+            scrollTrigger: {
+                trigger: '.hero',
+                start: 'top bottom',
+                end: 'bottom top',
+                scrub: true
+            }
+        });
+
+        gsap.to('.floating-icon', {
+            y: -100,
+            rotation: 360,
+            ease: 'none',
+            stagger: 0.2,
+            scrollTrigger: {
+                trigger: '.hero',
+                start: 'top bottom',
+                end: 'bottom top',
+                scrub: true
+            }
+        });
+
+        gsap.timeline({
+            scrollTrigger: {
+                trigger: '.features',
+                start: 'top 60%'
+            }
+        }).from('.feature-card', {
+            y: 100,
+            opacity: 0,
+            duration: 0.8,
+            stagger: 0.2,
+            ease: 'power2.out'
+        });
+
+        document.querySelector('.newsletter-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = this.querySelector('input[type="email"]').value;
+            
+            const button = this.querySelector('button');
+            const originalText = button.textContent;
+            
+            button.textContent = 'Subscribing...';
+            button.disabled = true;
+            
+            setTimeout(() => {
+                button.textContent = 'Subscribed!';
+                button.style.background = '#28a745';
+                this.querySelector('input[type="email"]').value = '';
+                
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.disabled = false;
+                    button.style.background = '';
+                }, 2000);
+            }, 1500);
+        });
+
+        function createWeatherParticles() {
+            const particleCount = 50;
+            const particles = [];
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.style.cssText = `
+                    position: absolute;
+                    width: 4px;
+                    height: 4px;
+                    background: rgba(255, 255, 255, 0.6);
+                    border-radius: 50%;
+                    pointer-events: none;
+                    z-index: 1;
+                `;
+                
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                
+                document.querySelector('.floating-elements').appendChild(particle);
+                particles.push(particle);
+                
+                gsap.to(particle, {
+                    y: window.innerHeight + 100,
+                    x: Math.random() * 200 - 100,
+                    opacity: 0,
+                    duration: Math.random() * 10 + 5,
+                    repeat: -1,
+                    ease: 'none',
+                    delay: Math.random() * 5
+                });
+            }
+        }
+
+        createWeatherParticles();
+
+        let loadProgress = 0;
+        const progressInterval = setInterval(() => {
+            loadProgress += Math.random() * 30;
+            if (loadProgress >= 100) {
+                loadProgress = 100;
+                clearInterval(progressInterval);
+            }
+        }, 200);
+
+        ScrollTrigger.create({
+            trigger: 'body',
+            start: 'top top',
+            end: 'bottom bottom',
+            scrub: 1,
+            onUpdate: (self) => {
+                if (earthGroup) {
+                    earthGroup.rotation.x = self.progress * Math.PI * 2;
+                }
+                if (clouds) {
+                    clouds.rotation.y = self.progress * Math.PI * 4;
+                }
+            }
+        });
+
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.feature-card, .stat-item').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(30px)';
+            el.style.transition = 'all 0.6s ease';
+            observer.observe(el);
+        });
+
+        function updateWeatherBackground() {
+            const hour = new Date().getHours();
+            const hero = document.querySelector('.hero');
+            
+            if (hour >= 6 && hour < 12) {
+                
+                hero.style.background = 'linear-gradient(135deg, #74b9ff 0%, #0984e3 100%)';
+            } else if (hour >= 12 && hour < 18) {
+                hero.style.background = 'linear-gradient(135deg, #fd79a8 0%, #fdcb6e 100%)';
+            } else if (hour >= 18 && hour < 21) {
+                hero.style.background = 'linear-gradient(135deg, #fd79a8 0%, #e84393 100%)';
+            } else {
+                hero.style.background = 'linear-gradient(135deg, #2d3436 0%, #636e72 100%)';
+            }
+        }
+
+        updateWeatherBackground();
+
+        setInterval(updateWeatherBackground, 3600000);
+
+        const createMobileMenu = () => {
+            if (window.innerWidth <= 768) {
+                const header = document.querySelector('header');
+                const nav = document.querySelector('nav');
+                
+                if (!header.querySelector('.mobile-toggle')) {
+                    const toggle = document.createElement('button');
+                    toggle.className = 'mobile-toggle';
+                    toggle.innerHTML = '<i class="fas fa-bars"></i>';
+                    toggle.style.cssText = `
+                        background: none;
+                        border: none;
+                        color: var(--primary-color);
+                        font-size: 1.5rem;
+                        cursor: pointer;
+                        display: none;
+                    `;
+                    
+                    header.appendChild(toggle);
+                    
+                    toggle.addEventListener('click', () => {
+                        nav.style.display = nav.style.display === 'block' ? 'none' : 'block';
+                    });
+                }
+            }
+        };
+
+        createMobileMenu();
+        window.addEventListener('resize', createMobileMenu);
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                gsap.globalTimeline.pause();
+            } else {
+                gsap.globalTimeline.resume();
+            }
+        });
+
+        console.log('MausamLive Government Landing Page Loaded Successfully');
+    </script>
+</body>
+</html>

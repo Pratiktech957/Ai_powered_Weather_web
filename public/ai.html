@@ -1,0 +1,1937 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Advanced AI Weather Intelligence Hub</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<style>
+:root {
+  --primary: #2563eb;
+  --secondary: #1e40af;
+  --accent: #3b82f6;
+  --bg-light: #f8fafc;
+  --bg-darker: #e2e8f0;
+  --text-dark: #1e293b;
+  --text-light: #64748b;
+  --warning: #dc2626;
+  --success: #059669;
+  --border: #e2e8f0;
+  --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --gradient-secondary: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+  --card-bg: rgba(255,255,255,0.95);
+  --shadow-soft: 0 10px 40px rgba(0,0,0,0.1);
+  --shadow-hover: 0 20px 60px rgba(37,99,235,0.2);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg-light);
+  color: var(--text-dark);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+.bg-animation {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #cbd5e1 100%);
+}
+
+.bg-animation::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><defs><radialGradient id="g"><stop offset="0%" stop-color="%232563eb" stop-opacity="0.1"/><stop offset="100%" stop-color="%232563eb" stop-opacity="0"/></radialGradient></defs><circle cx="200" cy="200" r="100" fill="url(%23g)"><animate attributeName="cx" values="200;800;200" dur="20s" repeatCount="indefinite"/></circle><circle cx="800" cy="800" r="150" fill="url(%23g)"><animate attributeName="cy" values="800;200;800" dur="25s" repeatCount="indefinite"/></circle></svg>');
+  animation: float 30s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 0.8; }
+}
+
+header {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 1000;
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(20px);
+  box-shadow: var(--shadow-soft);
+  border-bottom: 3px solid var(--primary);
+}
+
+.nav-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  animation: slideInLeft 0.8s ease-out;
+}
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-50px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.logo i {
+  font-size: 2.2rem;
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: spin 20s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.logo h1 {
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-size: 1.8rem;
+  font-weight: 700;
+}
+
+.nav-controls {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  animation: slideInRight 0.8s ease-out;
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(50px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+main {
+  margin-top: 100px;
+  padding: 2rem;
+  max-width: 1400px;
+  margin-left: auto;
+  margin-right: auto;
+  animation: fadeInUp 1s ease-out;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.input-group {
+  position: relative;
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+input, button, select {
+  background: var(--card-bg);
+  border: 2px solid var(--border);
+  color: var(--text-dark);
+  padding: 0.8rem 1rem;
+  border-radius: 12px;
+  outline: none;
+  font-family: inherit;
+  transition: all 0.3s ease;
+}
+
+input {
+  min-width: 200px;
+}
+
+input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  transform: translateY(-1px);
+}
+
+input::placeholder {
+  color: var(--text-light);
+}
+
+button {
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  transition: left 0.5s ease;
+}
+
+button:hover:not(:disabled)::before {
+  left: 100%;
+}
+
+button.primary {
+  background: var(--gradient-secondary);
+  color: white;
+  border-color: var(--primary);
+}
+
+button.primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
+}
+
+button.ghost {
+  background: var(--card-bg);
+  color: var(--primary);
+}
+
+button.ghost:hover:not(:disabled) {
+  background: var(--primary);
+  color: white;
+  transform: translateY(-1px);
+}
+
+.main-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+@media (max-width: 1024px) {
+  .main-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.chat-section {
+  background: var(--card-bg);
+  border: 2px solid var(--border);
+  border-radius: 24px;
+  padding: 2rem;
+  box-shadow: var(--shadow-soft);
+  backdrop-filter: blur(10px);
+  position: relative;
+  overflow: hidden;
+}
+
+.chat-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--gradient-primary);
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--border);
+}
+
+.section-header i {
+  font-size: 1.5rem;
+  color: var(--primary);
+}
+
+.section-header h2 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.chat-container {
+  height: 60vh;
+  overflow-y: auto;
+  padding: 1rem;
+  border: 2px solid var(--border);
+  border-radius: 16px;
+  background: rgba(248, 250, 252, 0.5);
+  margin-bottom: 1.5rem;
+}
+
+.chat-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.chat-container::-webkit-scrollbar-track {
+  background: var(--bg-darker);
+  border-radius: 3px;
+}
+
+.chat-container::-webkit-scrollbar-thumb {
+  background: var(--primary);
+  border-radius: 3px;
+}
+
+.message {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  align-items: flex-start;
+  animation: messageSlide 0.5s ease-out;
+}
+
+@keyframes messageSlide {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.message.user {
+  flex-direction: row-reverse;
+}
+
+.message-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.message.user .message-avatar {
+  background: var(--gradient-secondary);
+  color: white;
+}
+
+.message.bot .message-avatar {
+  background: var(--gradient-primary);
+  color: white;
+}
+
+.message-bubble {
+  padding: 1rem 1.5rem;
+  border-radius: 20px;
+  max-width: 85%;
+  position: relative;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.message.user .message-bubble {
+  background: var(--gradient-secondary);
+  color: white;
+  border-bottom-right-radius: 4px;
+}
+
+.message.bot .message-bubble {
+  background: white;
+  color: var(--text-dark);
+  border: 2px solid var(--border);
+  border-bottom-left-radius: 4px;
+}
+
+.message.error .message-bubble {
+  background: rgba(220, 38, 38, 0.1);
+  border-color: var(--warning);
+  color: var(--warning);
+}
+
+.message-time {
+  font-size: 0.8rem;
+  opacity: 0.7;
+  margin-top: 0.5rem;
+  text-align: right;
+}
+
+.typing-indicator {
+  display: flex;
+  gap: 4px;
+  padding: 1rem 1.5rem;
+}
+
+.typing-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--primary);
+  animation: typingBounce 1.4s infinite;
+}
+
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes typingBounce {
+  0%, 60%, 100% { transform: translateY(0); }
+  30% { transform: translateY(-10px); }
+}
+
+.error-alert {
+  background: rgba(220, 38, 38, 0.1);
+  border: 2px solid var(--warning);
+  border-radius: 12px;
+  padding: 1rem;
+  margin: 1rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--warning);
+  font-weight: 500;
+}
+
+.error-alert i {
+  font-size: 1.2rem;
+}
+
+.weather-panel {
+  background: var(--card-bg);
+  border: 2px solid var(--border);
+  border-radius: 24px;
+  padding: 2rem;
+  box-shadow: var(--shadow-soft);
+  backdrop-filter: blur(10px);
+}
+
+.forecast-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.forecast-card {
+  background: white;
+  border: 2px solid var(--border);
+  border-radius: 16px;
+  padding: 1rem;
+  text-align: center;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.forecast-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--gradient-primary);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.forecast-card:hover::before {
+  opacity: 0.05;
+}
+
+.forecast-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-hover);
+  border-color: var(--primary);
+}
+
+.forecast-card.best {
+  border-color: var(--success);
+  background: rgba(5, 150, 105, 0.05);
+  box-shadow: 0 0 20px rgba(5, 150, 105, 0.2);
+}
+
+.forecast-time {
+  font-weight: 700;
+  color: var(--primary);
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.forecast-temp {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.forecast-condition {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.forecast-details {
+  font-size: 0.8rem;
+  color: var(--text-light);
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.stat-card {
+  background: white;
+  border: 2px solid var(--border);
+  border-radius: 16px;
+  padding: 1.5rem;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
+  border-color: var(--primary);
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 0.5rem;
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  color: var(--text-light);
+  font-weight: 600;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background: var(--bg-darker);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: 0.5rem;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 1s ease-in-out;
+}
+
+.progress-good { background: var(--success); }
+.progress-medium { background: #ffc857; }
+.progress-poor { background: var(--warning); }
+
+.input-dock {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 1.5rem;
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(20px);
+  border-top: 2px solid var(--border);
+  box-shadow: 0 -10px 30px rgba(0,0,0,0.1);
+}
+
+.dock-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.dock-input {
+  flex: 1;
+  padding: 1rem 1.5rem;
+  border-radius: 25px;
+  border: 2px solid var(--border);
+  font-size: 1rem;
+  background: white;
+  transition: all 0.3s ease;
+}
+
+.dock-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.dock-button {
+  padding: 1rem 1.5rem;
+  border-radius: 25px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.quick-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.quick-action {
+  padding: 0.5rem 1rem;
+  background: var(--bg-darker);
+  color: var(--text-dark);
+  border: none;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.quick-action:hover {
+  background: var(--primary);
+  color: white;
+  transform: translateY(-1px);
+}
+
+.status-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: rgba(37, 99, 235, 0.05);
+  border-radius: 12px;
+  margin-bottom: 1rem;
+}
+
+.status-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--text-light);
+}
+
+.status-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+.status-online { background: var(--success); }
+.status-loading { background: #ffc857; }
+.status-offline { background: var(--warning); }
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+.rate-limit-warning {
+  background: rgba(255, 193, 7, 0.1);
+  border: 2px solid #ffc857;
+  border-radius: 12px;
+  padding: 1rem;
+  margin: 1rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #b8860b;
+  font-weight: 500;
+}
+
+@media (max-width: 768px) {
+  .nav-container {
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem;
+  }
+
+  main {
+    margin-top: 140px;
+    padding: 1rem;
+  }
+
+  .main-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .forecast-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dock-container {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .dock-input {
+    width: 100%;
+  }
+}
+
+.reload-btn {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: var(--gradient-primary);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  cursor: pointer;
+  z-index: 2000;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  transition: transform 0.3s ease;
+}
+
+.reload-btn:hover {
+  transform: rotate(90deg);
+  background: var(--gradient-secondary);
+}
+</style>
+</head>
+<body>
+<div class="bg-animation"></div>
+<div class="reload-btn" title="Reload application" id="reloadBtn">
+  <i class="fas fa-sync-alt"></i>
+</div>
+
+<header>
+  <div class="nav-container">
+    <div class="logo">
+      <i class="fas fa-cloud-sun"></i>
+      <h1>WeatherMind AI</h1>
+    </div>
+    <div class="nav-controls">
+      <div class="input-group">
+        <input id="cityInput" placeholder="Enter city name..." />
+        <button class="ghost" id="geoBtn" title="Use my location">
+          <i class="fas fa-map-marker-alt"></i>
+        </button>
+        <button class="primary" id="quickTipsBtn">
+          <i class="fas fa-lightbulb"></i> Smart Tips
+        </button>
+        <button class="ghost" id="voiceBtn" title="Voice commands">
+          <i class="fas fa-microphone"></i>
+        </button>
+        <button class="ghost" id="speakBtn" title="Read aloud">
+          <i class="fas fa-volume-up"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="status-bar">
+    <div class="status-item">
+      <div class="status-indicator status-online" id="statusIndicator"></div>
+      <span id="statusText">AI Weather System Online</span>
+    </div>
+    <div class="status-item">
+      <i class="fas fa-map-marker-alt"></i>
+      <span id="currentLocation">Detecting location...</span>
+    </div>
+    <div class="status-item">
+      <i class="fas fa-clock"></i>
+      <span id="lastUpdate">Just now</span>
+    </div>
+  </div>
+
+  <div class="main-grid">
+    <section class="chat-section">
+      <div class="section-header">
+        <i class="fas fa-robot"></i>
+        <h2>AI Weather Assistant</h2>
+      </div>
+      
+      <div id="chatContainer" class="chat-container">
+        <div class="message bot">
+          <div class="message-avatar">
+            <i class="fas fa-robot"></i>
+          </div>
+          <div class="message-bubble">
+            <p>Namaste! 🙏 Main aapka personal weather assistant hun. Aap mujhse Hindi ya English mein kuch bhi puch sakte hain:</p>
+            <ul style="margin-top: 1rem; padding-left: 1rem;">
+              <li>"Kal subah jogging ke liye weather kaisa rahega?"</li>
+              <li>"Aaj kya पहनूं sunny day के लिए?"</li>
+              <li>"Weekend par picnic plan kar sakte hain?"</li>
+              <li>"Next 3 days ka detailed forecast batao"</li>
+            </ul>
+            <p style="margin-top: 1rem; font-style: italic;">Voice commands bhi supported hain! 🎤</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <aside class="weather-panel">
+      <div class="section-header">
+        <i class="fas fa-chart-line"></i>
+        <h2>Live Forecast</h2>
+      </div>
+
+      <div id="forecastGrid" class="forecast-grid">
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-value" id="bestTime">--:--</div>
+          <div class="stat-label">Best Window</div>
+          <div class="progress-bar">
+            <div class="progress-fill progress-good" id="bestTimeProgress" style="width: 0%"></div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="comfortScore">--</div>
+          <div class="stat-label">Comfort Score</div>
+          <div class="progress-bar">
+            <div class="progress-fill progress-medium" id="comfortProgress" style="width: 0%"></div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="rainChance">--%</div>
+          <div class="stat-label">Rain Probability</div>
+          <div class="progress-bar">
+            <div class="progress-fill progress-poor" id="rainProgress" style="width: 0%"></div>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </div>
+</main>
+
+<div class="input-dock">
+  <div class="dock-container">
+    <button class="dock-button ghost" id="micBtn" title="Voice input">
+      <i class="fas fa-microphone"></i>
+    </button>
+    <input id="userInput" class="dock-input" placeholder='Ask: "Kal ki weather kaisi rahegi?" or "What should I wear today?"' />
+    <button class="dock-button primary" id="sendBtn">
+      <i class="fas fa-paper-plane"></i> Send
+    </button>
+  </div>
+  
+  <div class="quick-actions">
+    <button class="quick-action" data-query="Aaj ka weather update batao">Today's Weather</button>
+    <button class="quick-action" data-query="Kal subah jogging ke liye tips">Morning Jog Tips</button>
+    <button class="quick-action" data-query="Weekend weather plan">Weekend Forecast</button>
+    <button class="quick-action" data-query="Kapde aur activities suggest karo">Clothing & Activities</button>
+    <button class="quick-action" data-query="Rain probability analysis">Rain Analysis</button>
+  </div>
+</div>
+
+<script>
+const CONFIG = {
+
+  RATE_LIMIT: {
+    requests: 0,
+    maxPerMinute: 15,
+    resetTime: 0,
+    backoffMultiplier: 1.5,
+    maxBackoffTime: 30000
+  }
+};
+
+const AppState = {
+  currentLocation: null,
+  forecastData: null,
+  isListening: false,
+  isSpeaking: false,
+  lastBotMessage: "",
+  recognition: null,
+  synthesis: window.speechSynthesis,
+  isProcessing: false,
+  offlineMode: false
+};
+
+const Elements = {
+  chatContainer: document.getElementById('chatContainer'),
+  cityInput: document.getElementById('cityInput'),
+  userInput: document.getElementById('userInput'),
+  forecastGrid: document.getElementById('forecastGrid'),
+  statusIndicator: document.getElementById('statusIndicator'),
+  statusText: document.getElementById('statusText'),
+  currentLocation: document.getElementById('currentLocation'),
+  lastUpdate: document.getElementById('lastUpdate'),
+  bestTime: document.getElementById('bestTime'),
+  comfortScore: document.getElementById('comfortScore'),
+  rainChance: document.getElementById('rainChance'),
+  bestTimeProgress: document.getElementById('bestTimeProgress'),
+  comfortProgress: document.getElementById('comfortProgress'),
+  rainProgress: document.getElementById('rainProgress'),
+  sendBtn: document.getElementById('sendBtn'),
+  micBtn: document.getElementById('micBtn'),
+  geoBtn: document.getElementById('geoBtn'),
+  voiceBtn: document.getElementById('voiceBtn'),
+  speakBtn: document.getElementById('speakBtn'),
+  quickTipsBtn: document.getElementById('quickTipsBtn'),
+  reloadBtn: document.getElementById('reloadBtn')
+};
+
+const Utils = {
+  sanitizeHtml: (str) => str.replace(/[<>&"']/g, c => ({
+    '<':'&lt;', '>':'&gt;', '&':'&amp;', '"':'&quot;', "'":"&#39;"
+  }[c])),
+  
+  formatTime: (timestamp) => new Date(timestamp * 1000).toLocaleTimeString([], {
+    hour: '2-digit',
+    minute: '2-digit'
+  }),
+  
+  getWeatherIcon: (condition) => {
+    const icons = {
+      'Clear': '☀️',
+      'Clouds': '☁️',
+      'Rain': '🌧️',
+      'Drizzle': '🌦️',
+      'Thunderstorm': '⛈️',
+      'Snow': '❄️',
+      'Mist': '🌫️',
+      'Fog': '🌫️',
+      'Haze': '🌫️'
+    };
+    return icons[condition] || '🌤️';
+  },
+  
+  updateStatus: (status, text) => {
+    Elements.statusIndicator.className = `status-indicator status-${status}`;
+    Elements.statusText.textContent = text;
+  },
+  
+  updateProgress: (element, value, max = 100) => {
+    const percentage = (value / max) * 100;
+    element.style.width = `${Math.min(percentage, 100)}%`;
+  },
+
+  debounce: (func, wait) => {
+    let timeout;
+    return function executedFunction(...args) {
+      const later = () => {
+        clearTimeout(timeout);
+        func(...args);
+      };
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+    };
+  },
+
+  showError: (message, container = Elements.chatContainer) => {
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'error-alert';
+    errorDiv.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${message}`;
+    
+    if (container === Elements.chatContainer) {
+      UIManager.addMessage('error', message);
+    } else {
+      container.appendChild(errorDiv);
+      setTimeout(() => errorDiv.remove(), 5000);
+    }
+  }
+};
+
+const RateLimiter = {
+  canMakeRequest() {
+    const now = Date.now();
+    
+    if (now - CONFIG.RATE_LIMIT.resetTime > 60000) {
+      CONFIG.RATE_LIMIT.requests = 0;
+      CONFIG.RATE_LIMIT.resetTime = now;
+    }
+    
+    return CONFIG.RATE_LIMIT.requests < CONFIG.RATE_LIMIT.maxPerMinute;
+  },
+
+  incrementRequests() {
+    CONFIG.RATE_LIMIT.requests++;
+  },
+
+  getWaitTime() {
+    const requestsOverLimit = CONFIG.RATE_LIMIT.requests - CONFIG.RATE_LIMIT.maxPerMinute;
+    return Math.min(
+      CONFIG.RATE_LIMIT.maxBackoffTime,
+      1000 * Math.pow(CONFIG.RATE_LIMIT.backoffMultiplier, requestsOverLimit)
+    );
+  },
+
+  async waitBeforeRetry() {
+    const waitTime = this.getWaitTime();
+    Utils.updateStatus('loading', `Rate limited. Waiting ${Math.round(waitTime/1000)}s...`);
+    await new Promise(resolve => setTimeout(resolve, waitTime));
+  }
+};
+
+const ErrorHandler = {
+  handleApiError(error, context = 'API') {
+    console.error(`${context} Error:`, error);
+    
+    if (error.message.includes('429') || error.message.includes('Too Many Requests')) {
+      return {
+        type: 'RATE_LIMIT',
+        message: '🚫 API rate limit exceeded. Using smart fallback response.',
+        shouldRetry: true
+      };
+    }
+    
+    if (error.message.includes('401') || error.message.includes('403')) {
+      return {
+        type: 'AUTH_ERROR',
+        message: '🔑 API authentication issue. Using offline mode.',
+        shouldRetry: false
+      };
+    }
+    
+    if (error.message.includes('Network')) {
+      return {
+        type: 'NETWORK_ERROR',
+        message: '🌐 Network connection issue. Check your internet.',
+        shouldRetry: true
+      };
+    }
+    
+    return {
+      type: 'GENERIC_ERROR',
+      message: `❌ ${context} temporarily unavailable. Using fallback.`,
+      shouldRetry: false
+    };
+  }
+};
+
+const WeatherAPI = {
+  async fetchWithRetry(fetchFunction, maxRetries = 3) {
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+      try {
+        return await fetchFunction();
+      } catch (error) {
+        const errorInfo = ErrorHandler.handleApiError(error, 'Weather API');
+        
+        if (attempt === maxRetries - 1 || !errorInfo.shouldRetry) {
+          throw new Error(errorInfo.message);
+        }
+        
+        // Wait before retrying
+        await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)));
+      }
+    }
+  },
+
+  async fetchByCity(city) {
+    return this.fetchWithRetry(async () => {
+      const url = `https://api.openweathermap.org/data/2.5/forecast?q=${encodeURIComponent(city)}&appid=${CONFIG.OPENWEATHER_API_KEY}&units=metric`;
+      const response = await fetch(url);
+      
+      if (response.status === 429) {
+        throw new Error('Weather API rate limit exceeded');
+      }
+      if (response.status === 401) {
+        throw new Error('Weather API authentication failed');
+      }
+      if (!response.ok) {
+        throw new Error(`City "${city}" not found. Please check spelling.`);
+      }
+      
+      return response.json();
+    });
+  },
+
+  async fetchByCoords(lat, lon) {
+    return this.fetchWithRetry(async () => {
+      const url = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${CONFIG.OPENWEATHER_API_KEY}&units=metric`;
+      const response = await fetch(url);
+      
+      if (response.status === 429) {
+        throw new Error('Weather API rate limit exceeded');
+      }
+      if (!response.ok) {
+        throw new Error("Unable to fetch weather for your location.");
+      }
+      
+      return response.json();
+    });
+  }
+};
+
+const WeatherScoring = {
+  calculateComfortScore(slot) {
+    const temp = slot.main.feels_like || slot.main.temp;
+    const pop = (slot.pop || 0) * 100;
+    const wind = slot.wind?.speed || 0;
+    const humidity = slot.main.humidity;
+    const hour = new Date(slot.dt * 1000).getHours();
+    
+    const idealTemp = 24;
+    const tempDiff = Math.abs(temp - idealTemp);
+    let tempScore = Math.max(0, 100 - (tempDiff * 4));
+    
+    let rainScore = 100 - pop;
+    
+    let windScore = wind < 2 ? 85 : Math.max(20, 100 - (wind * 8));
+    
+    const humidityDiff = Math.abs(humidity - 50);
+    let humidityScore = Math.max(40, 100 - (humidityDiff * 2));
+    
+    let timeBonus = 0;
+    if (hour >= 6 && hour <= 9) timeBonus = 15;
+    else if (hour >= 17 && hour <= 19) timeBonus = 10;
+    else if (hour >= 10 && hour <= 16) timeBonus = -5;
+    
+    const condition = slot.weather[0]?.main;
+    let conditionPenalty = 0;
+    if (condition === 'Thunderstorm') conditionPenalty = 30;
+    else if (condition === 'Rain') conditionPenalty = 20;
+    else if (condition === 'Drizzle') conditionPenalty = 10;
+    
+    const finalScore = Math.max(0, Math.min(100, 
+      (tempScore * 0.35) + 
+      (rainScore * 0.25) + 
+      (windScore * 0.20) + 
+      (humidityScore * 0.20) + 
+      timeBonus - conditionPenalty
+    ));
+    
+    return Math.round(finalScore);
+  },
+
+  getClothingRecommendation(temp, condition, pop, wind) {
+    let recommendation = "";
+    
+    if (pop >= 70) {
+      recommendation += "🌧️ Baarish confirm hai - waterproof jacket/umbrella ज़रूर लें। Non-slip shoes पहनें। ";
+    } else if (pop >= 40) {
+      recommendation += "⛅ Baarish possible - light jacket/umbrella साथ रखें। ";
+    }
+    
+    if (temp >= 35) {
+      recommendation += "🔥 Extreme heat - cotton के हल्के कपड़े, wide-brim cap, SPF 50+ sunscreen, sunglasses। Hydration priority रखें।";
+    } else if (temp >= 30) {
+      recommendation += "☀️ Hot weather - breathable fabrics, sunglasses, sunscreen SPF 30+। Light colors prefer करें।";
+    } else if (temp >= 25) {
+      recommendation += "🌤️ Pleasant weather - comfortable casual wear। T-shirt/shirt perfect है।";
+    } else if (temp >= 20) {
+      recommendation += "😊 Mild weather - light sweater/cardigan recommended। Layers का option रखें।";
+    } else if (temp >= 15) {
+      recommendation += "🧥 Cool weather - jacket/hoodie ज़रूरी। Long pants और closed shoes।";
+    } else if (temp >= 10) {
+      recommendation += "❄️ Cold weather - warm jacket, gloves, beanie। Layered clothing strategy अपनाएं।";
+    } else {
+      recommendation += "🧊 Very cold - heavy winter coat, thermal wear, gloves, warm cap। Skin protection ज़रूरी।";
+    }
+    
+    if (wind >= 15) {
+      recommendation += " 💨 Tez hawa - wind-resistant outer layer लें।";
+    }
+    
+    return recommendation;
+  },
+
+  getActivityRecommendation(score, temp, pop, wind, condition) {
+    let activities = [];
+    
+    if (score >= 80) {
+      activities.push("🏃‍♂️ Perfect for jogging/running - ideal conditions!");
+      activities.push("🚴‍♀️ Cycling excellent rahegi - enjoy outdoor activities");
+      activities.push("🧘‍♀️ Outdoor yoga/meditation - nature के साथ connect करें");
+    } else if (score >= 65) {
+      activities.push("🚶‍♀️ Walking/light jogging good - moderate pace रखें");
+      activities.push("⚽ Outdoor sports possible - hydration maintain करें");
+      activities.push("🏞️ Sightseeing/photography - weather supportive है");
+    } else if (score >= 50) {
+      activities.push("🏠 Indoor activities prefer करें - gym/mall/cinema");
+      activities.push("🍵 Café/indoor shopping - cozy environments choose करें");
+      activities.push("📚 Reading/study sessions - peaceful indoor time");
+    } else {
+      activities.push("🏠 Stay indoors strongly recommended");
+      activities.push("🍲 Home cooking/baking - comfort food का time");
+      activities.push("🎬 Movie marathon/indoor hobbies - weather wait करें");
+    }
+    
+    if (pop >= 80) {
+      activities.unshift("⚠️ Heavy rain expected - outdoor plans cancel करें");
+    } else if (wind >= 20) {
+      activities.unshift("💨 Strong winds - outdoor activities risky हो सकते हैं");
+    }
+    
+    return activities.slice(0, 3); 
+  }
+};
+
+const AISystem = {
+  async generateResponse(userQuery, weatherContext) {
+    if (!RateLimiter.canMakeRequest()) {
+      AppState.offlineMode = true;
+      return this.generateOfflineResponse(userQuery, weatherContext);
+    }
+
+    if (AppState.offlineMode) {
+      return this.generateOfflineResponse(userQuery, weatherContext);
+    }
+
+    const systemPrompt = `You are WeatherMind AI, an advanced weather assistant that responds in natural Hinglish (Hindi + English mix). 
+
+PERSONALITY: Friendly, knowledgeable, and practical. Use emojis strategically but don't overuse them.
+
+RESPONSE STRUCTURE:
+1. Direct answer to user's question (1-2 sentences)
+2. Key recommendations in bullet points:
+   - 👔 **Clothing**: Specific outfit suggestions
+   - 🏃 **Activities**: What to do/avoid  
+   - ⚠️ **Safety**: Important precautions
+3. Best time window if relevant
+4. Brief motivational closing
+
+LANGUAGE STYLE:
+- Natural Hinglish conversation
+- Mix Hindi and English fluidly
+- Use "aap", "hai", "rahega", "करें", "ज़रूर" etc.
+- Professional yet conversational tone
+- Keep responses 100-150 words maximum
+
+WEATHER CONTEXT PROVIDED:
+${weatherContext}
+
+USER QUESTION: "${userQuery}"
+
+Respond naturally and helpfully!`;
+
+    try {
+      RateLimiter.incrementRequests();
+      
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000); 
+      
+      const response = await fetch(`${CONFIG.GEMINI_ENDPOINT}?key=${CONFIG.GEMINI_API_KEY}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        signal: controller.signal,
+        body: JSON.stringify({
+          contents: [{ 
+            role: "user", 
+            parts: [{ text: systemPrompt }] 
+          }],
+          generationConfig: {
+            temperature: 0.7,
+            topP: 0.8,
+            topK: 40,
+            maxOutputTokens: 400
+          },
+          safetySettings: [
+            {
+              category: "HARM_CATEGORY_HARASSMENT",
+              threshold: "BLOCK_MEDIUM_AND_ABOVE"
+            },
+            {
+              category: "HARM_CATEGORY_HATE_SPEECH",
+              threshold: "BLOCK_MEDIUM_AND_ABOVE"
+            }
+          ]
+        })
+      });
+
+      clearTimeout(timeoutId);
+
+      if (response.status === 429) {
+        await RateLimiter.waitBeforeRetry();
+        AppState.offlineMode = true;
+        return this.generateOfflineResponse(userQuery, weatherContext);
+      }
+
+      if (!response.ok) {
+        throw new Error(`AI API error: ${response.status} ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      
+      if (data.error) {
+        throw new Error(`AI API error: ${data.error.message}`);
+      }
+      
+      const aiResponse = data?.candidates?.[0]?.content?.parts?.[0]?.text || 
+                        this.generateFallbackResponse(userQuery, weatherContext);
+      
+      return aiResponse.trim();
+      
+    } catch (error) {
+      const errorInfo = ErrorHandler.handleApiError(error, 'AI API');
+      
+      if (errorInfo.type === 'RATE_LIMIT') {
+        AppState.offlineMode = true;
+        return this.generateOfflineResponse(userQuery, weatherContext);
+      }
+      
+      console.error('AI Error:', error);
+      return this.generateFallbackResponse(userQuery, weatherContext);
+    }
+  },
+
+  generateOfflineResponse(userQuery, weatherContext) {
+    const lines = weatherContext.split('\n');
+    const cityMatch = lines.find(l => l.startsWith('City:'));
+    const currentMatch = lines.find(l => l.startsWith('Current:'));
+    const bestMatch = lines.find(l => l.startsWith('Best slot:'));
+    const clothingMatch = lines.find(l => l.startsWith('Clothing suggestion:'));
+    const activityMatch = lines.find(l => l.startsWith('Activity recommendations:'));
+    
+    const city = cityMatch?.replace('City: ', '') || 'Your location';
+    const current = currentMatch?.replace('Current: ', '') || 'Weather data available';
+    const bestTime = bestMatch?.replace('Best slot: ', '') || 'Analyzing...';
+    const clothing = clothingMatch?.replace('Clothing suggestion: ', '') || '';
+    const activities = activityMatch?.replace('Activity recommendations: ', '') || '';
+
+    const query = userQuery.toLowerCase();
+    let response = "";
+    
+    if (query.includes('cloth') || query.includes('kapd') || query.includes('pehen') || query.includes('wear')) {
+      response = `👔 **Clothing Suggestion for ${city}:**\n\n${current}\n\n${clothing}\n\n**Best time window:** ${bestTime}`;
+    } else if (query.includes('activity') || query.includes('plan') || query.includes('jog') || query.includes('exercise')) {
+      response = `🏃 **Activity Planning for ${city}:**\n\n${current}\n\n**Recommendations:**\n${activities.split(';').slice(0,3).map(a => `• ${a.trim()}`).join('\n')}\n\n**Optimal timing:** ${bestTime}`;
+    } else if (query.includes('rain') || query.includes('baarish') || query.includes('umbrella')) {
+      const rainInfo = current.match(/Rain chance: (\d+)%/)?.[1] || 'unknown';
+      response = `🌧️ **Rain Analysis for ${city}:**\n\nCurrent conditions: ${current}\n\n${rainInfo !== 'unknown' ? `Rain probability: ${rainInfo}%` : 'Checking precipitation data...'}\n\n${rainInfo > 50 ? '☔ Umbrella recommended!' : '🌤️ Light rain gear sufficient'}`;
+    } else {
+      response = `🌤️ **Weather Summary for ${city}:**\n\n**Current:** ${current}\n\n**Best window:** ${bestTime}\n\n**Quick tips:** Weather-appropriate clothing aur hydration maintain करें। Location update करने के लिए city name enter करें!`;
+    }
+
+    response += `\n\n💡 *Smart offline mode active - AI responses temporarily using local intelligence.*`;
+    
+    return response;
+  },
+
+  generateFallbackResponse(userQuery, weatherContext) {
+    const lines = weatherContext.split('\n');
+    const cityMatch = lines.find(l => l.startsWith('City:'));
+    const currentMatch = lines.find(l => l.startsWith('Current:'));
+    const bestMatch = lines.find(l => l.startsWith('Best slot:'));
+    
+    return `**Weather Update:**\n\n${currentMatch || 'Weather data available.'}\n\n${bestMatch || 'Checking optimal timing...'}\n\n📍 **Location:** ${cityMatch?.replace('City: ', '') || 'Your area'}\n\n**Main advice:** Weather-appropriate clothing और hydration maintain करें। Detailed forecast के लिए location update करें!\n\n⚠️ *Basic response mode - full AI features temporarily unavailable.*`;
+  }
+};
+
+const QueryParser = {
+  parseTimeWindow(query) {
+    const text = query.toLowerCase();
+    let dayOffset = 0;
+    let startHour = 6, endHour = 22;
+    let activity = 'general';
+
+    if (/\b(kal|tomorrow)\b/.test(text)) dayOffset = 1;
+    else if (/\b(parso|day after)\b/.test(text)) dayOffset = 2;
+    else if (/\b(aaj|today)\b/.test(text)) dayOffset = 0;
+
+    if (/\b(subah|morning|सुबह)\b/.test(text)) {
+      startHour = 5; endHour = 10;
+    } else if (/\b(dopahar|afternoon|दोपहर)\b/.test(text)) {
+      startHour = 12; endHour = 17;
+    } else if (/\b(shaam|evening|शाम)\b/.test(text)) {
+      startHour = 17; endHour = 20;
+    } else if (/\b(raat|night|रात)\b/.test(text)) {
+      startHour = 20; endHour = 23;
+    }
+
+    if (/\b(jog|run|दौड़|running)\b/.test(text)) activity = 'jogging';
+    else if (/\b(walk|टहल|walking)\b/.test(text)) activity = 'walking';
+    else if (/\b(cycle|साइकिल|cycling)\b/.test(text)) activity = 'cycling';
+    else if (/\b(office|work|काम)\b/.test(text)) activity = 'commute';
+    else if (/\b(picnic|outing|घूमना)\b/.test(text)) activity = 'outdoor';
+
+    return { dayOffset, startHour, endHour, activity };
+  },
+
+  filterRelevantSlots(forecastList, timeWindow) {
+    const targetDate = new Date();
+    targetDate.setDate(targetDate.getDate() + timeWindow.dayOffset);
+    
+    return forecastList.filter(slot => {
+      const slotDate = new Date(slot.dt * 1000);
+      const sameDay = slotDate.getDate() === targetDate.getDate();
+      const inTimeRange = slotDate.getHours() >= timeWindow.startHour && 
+                         slotDate.getHours() <= timeWindow.endHour;
+      return sameDay && inTimeRange;
+    });
+  }
+};
+
+const UIManager = {
+  addMessage(role, content, timestamp = true) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${role}`;
+    
+    const timeStr = timestamp ? new Date().toLocaleTimeString([], {
+      hour: '2-digit', minute: '2-digit'
+    }) : '';
+    
+    const sanitizedContent = role === 'user' ? Utils.sanitizeHtml(content) : content;
+    
+    messageDiv.innerHTML = `
+      <div class="message-avatar">
+        <i class="fas fa-${role === 'user' ? 'user' : role === 'error' ? 'exclamation-triangle' : 'robot'}"></i>
+      </div>
+      <div class="message-bubble">
+        ${sanitizedContent}
+        ${timestamp ? `<div class="message-time">${timeStr}</div>` : ''}
+      </div>
+    `;
+    
+    Elements.chatContainer.appendChild(messageDiv);
+    Elements.chatContainer.scrollTop = Elements.chatContainer.scrollHeight;
+    
+    if (role === 'bot') {
+      AppState.lastBotMessage = content.replace(/<[^>]*>/g, '');
+    }
+  },
+
+  showTypingIndicator() {
+    this.removeTypingIndicator(); 
+    
+    const typingDiv = document.createElement('div');
+    typingDiv.className = 'message bot typing-message';
+    typingDiv.innerHTML = `
+      <div class="message-avatar">
+        <i class="fas fa-robot"></i>
+      </div>
+      <div class="message-bubble">
+        <div class="typing-indicator">
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+        </div>
+      </div>
+    `;
+    Elements.chatContainer.appendChild(typingDiv);
+    Elements.chatContainer.scrollTop = Elements.chatContainer.scrollHeight;
+  },
+
+  removeTypingIndicator() {
+    const typing = document.querySelector('.typing-message');
+    if (typing) typing.remove();
+  },
+
+  updateForecastDisplay(forecastData) {
+    try {
+      const slots = forecastData.list.slice(0, 8);
+      const slotsWithScores = slots.map(slot => ({
+        slot,
+        score: WeatherScoring.calculateComfortScore(slot)
+      }));
+      
+      const bestSlot = slotsWithScores.reduce((best, current) => 
+        current.score > best.score ? current : best
+      );
+
+      // Update forecast grid
+      Elements.forecastGrid.innerHTML = slotsWithScores.map(({slot, score}) => {
+        const time = Utils.formatTime(slot.dt);
+        const temp = Math.round(slot.main.temp);
+        const icon = Utils.getWeatherIcon(slot.weather[0].main);
+        const pop = Math.round((slot.pop || 0) * 100);
+        const isBest = slot.dt === bestSlot.slot.dt;
+        
+        return `
+          <div class="forecast-card ${isBest ? 'best' : ''}" title="Comfort Score: ${score}">
+            <div class="forecast-time">${time}</div>
+            <div class="forecast-condition">${icon}</div>
+            <div class="forecast-temp">${temp}°C</div>
+            <div class="forecast-details">
+              ${slot.weather[0].main}<br>
+              POP: ${pop}%<br>
+              Score: ${score}
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      Elements.bestTime.textContent = Utils.formatTime(bestSlot.slot.dt);
+      Elements.comfortScore.textContent = bestSlot.score;
+      Elements.rainChance.textContent = `${Math.round((bestSlot.slot.pop || 0) * 100)}%`;
+      
+      Utils.updateProgress(Elements.bestTimeProgress, bestSlot.score);
+      Utils.updateProgress(Elements.comfortProgress, bestSlot.score);
+      Utils.updateProgress(Elements.rainProgress, Math.round((bestSlot.slot.pop || 0) * 100));
+
+      Elements.currentLocation.textContent = `${forecastData.city.name}, ${forecastData.city.country}`;
+      Elements.lastUpdate.textContent = 'Just updated';
+
+      AppState.forecastData = forecastData;
+    } catch (error) {
+      console.error('Error updating forecast display:', error);
+      Utils.showError('Error displaying weather data. Please try refreshing.');
+    }
+  },
+
+  setUIState(processing) {
+    AppState.isProcessing = processing;
+    Elements.sendBtn.disabled = processing;
+    Elements.micBtn.disabled = processing;
+    
+    if (processing) {
+      Elements.sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing';
+    } else {
+      Elements.sendBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Send';
+    }
+  }
+};
+
+const VoiceSystem = {
+  initSpeechRecognition() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) return null;
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'hi-IN';
+    recognition.interimResults = false;
+    recognition.continuous = false;
+
+    recognition.onstart = () => {
+      AppState.isListening = true;
+      Utils.updateStatus('loading', 'Listening... बोलिए');
+      Elements.micBtn.innerHTML = '<i class="fas fa-stop"></i>';
+    };
+
+    recognition.onresult = (event) => {
+      const transcript = Array.from(event.results)
+        .map(result => result[0].transcript)
+        .join(' ');
+      
+      Elements.userInput.value = transcript;
+      MessageHandler.handleUserMessage(transcript);
+    };
+
+    recognition.onerror = (event) => {
+      AppState.isListening = false;
+      Utils.updateStatus('offline', 'Voice recognition error');
+      Elements.micBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+      
+      if (event.error !== 'aborted') {
+        UIManager.addMessage('error', '🎤 Voice input में problem हुई। Text type करके try करें।');
+      }
+    };
+
+    recognition.onend = () => {
+      AppState.isListening = false;
+      Utils.updateStatus('online', 'AI Weather System Online');
+      Elements.micBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+    };
+
+    return recognition;
+  },
+
+  speak(text) {
+    if (!text || AppState.isSpeaking) return;
+
+    try {
+      if (AppState.synthesis.speaking) {
+        AppState.synthesis.cancel();
+      }
+
+      const utterance = new SpeechSynthesisUtterance(text.replace(/<[^>]*>/g, ''));
+      utterance.rate = 1.1;
+      utterance.pitch = 1;
+      utterance.volume = 0.8;
+      utterance.lang = 'hi-IN';
+
+      utterance.onstart = () => {
+        AppState.isSpeaking = true;
+        Elements.speakBtn.innerHTML = '<i class="fas fa-stop"></i>';
+      };
+      
+      utterance.onend = () => {
+        AppState.isSpeaking = false;
+        Elements.speakBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
+      };
+      
+      utterance.onerror = () => {
+        AppState.isSpeaking = false;
+        Elements.speakBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
+      };
+
+      AppState.synthesis.speak(utterance);
+    } catch (error) {
+      console.error('Speech synthesis error:', error);
+      UIManager.addMessage('error', '🔊 Text-to-speech temporarily unavailable.');
+    }
+  }
+};
+
+const MessageHandler = {
+  async handleUserMessage(query) {
+    if (!query.trim() || AppState.isProcessing) return;
+
+    UIManager.setUIState(true);
+    UIManager.addMessage('user', query);
+    UIManager.showTypingIndicator();
+    Utils.updateStatus('loading', 'Processing your query...');
+
+    try {
+      await this.ensureForecastData();
+
+      const timeWindow = QueryParser.parseTimeWindow(query);
+      
+      const relevantSlots = QueryParser.filterRelevantSlots(
+        AppState.forecastData.list, 
+        timeWindow
+      );
+
+      const slotsToAnalyze = relevantSlots.length > 0 ? 
+        relevantSlots : AppState.forecastData.list.slice(0, 8);
+
+      const slotsWithScores = slotsToAnalyze.map(slot => ({
+        slot,
+        score: WeatherScoring.calculateComfortScore(slot)
+      }));
+      
+      const bestSlot = slotsWithScores.reduce((best, current) => 
+        current.score > best.score ? current : best
+      );
+
+      const weatherContext = this.buildWeatherContext(bestSlot, timeWindow, query);
+
+      const aiResponse = await AISystem.generateResponse(query, weatherContext);
+
+      UIManager.removeTypingIndicator();
+      UIManager.addMessage('bot', aiResponse);
+      Utils.updateStatus('online', 'Response generated successfully');
+
+      if (document.getElementById('autoSpeak')?.checked) {
+        VoiceSystem.speak(aiResponse);
+      }
+
+    } catch (error) {
+      UIManager.removeTypingIndicator();
+      const errorMessage = error.message || 'Unknown error occurred';
+      UIManager.addMessage('error', errorMessage);
+      Utils.updateStatus('offline', 'Error occurred');
+    } finally {
+      UIManager.setUIState(false);
+      Elements.userInput.value = '';
+    }
+  },
+
+  buildWeatherContext(bestSlot, timeWindow, query) {
+    const current = AppState.forecastData.list[0];
+    const city = AppState.forecastData.city;
+    
+    const currentTemp = Math.round(current.main.temp);
+    const currentCondition = current.weather[0].description;
+    const currentPOP = Math.round((current.pop || 0) * 100);
+    
+    const bestTemp = Math.round(bestSlot.slot.main.feels_like || bestSlot.slot.main.temp);
+    const bestPOP = Math.round((bestSlot.slot.pop || 0) * 100);
+    const bestWind = Math.round(bestSlot.slot.wind?.speed || 0);
+    const bestTime = Utils.formatTime(bestSlot.slot.dt);
+    
+    const clothingRec = WeatherScoring.getClothingRecommendation(
+      bestTemp, bestSlot.slot.weather[0].main, bestPOP, bestWind
+    );
+    
+    const activityRecs = WeatherScoring.getActivityRecommendation(
+      bestSlot.score, bestTemp, bestPOP, bestWind, bestSlot.slot.weather[0].main
+    );
+
+    return `City: ${city.name}, ${city.country}
+Current: ${currentTemp}°C, ${currentCondition}, Rain chance: ${currentPOP}%
+Query time window: Day +${timeWindow.dayOffset}, Hours ${timeWindow.startHour}-${timeWindow.endHour}, Activity: ${timeWindow.activity}
+Best slot: ${bestTime}, ${bestTemp}°C, Rain chance: ${bestPOP}%, Wind: ${bestWind} m/s, Comfort score: ${bestSlot.score}/100
+Clothing suggestion: ${clothingRec}
+Activity recommendations: ${activityRecs.join('; ')}
+User query: "${query}"`;
+  },
+
+  async ensureForecastData() {
+    if (AppState.forecastData) return;
+
+    const cityName = Elements.cityInput.value.trim();
+    
+    if (cityName) {
+      const data = await WeatherAPI.fetchByCity(cityName);
+      UIManager.updateForecastDisplay(data);
+      return;
+    }
+
+    if (navigator.geolocation) {
+      try {
+        const position = await new Promise((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject, {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 300000
+          });
+        });
+        
+        const data = await WeatherAPI.fetchByCoords(
+          position.coords.latitude,
+          position.coords.longitude
+        );
+        
+        UIManager.updateForecastDisplay(data);
+        Elements.cityInput.value = data.city.name;
+        return;
+      } catch (geoError) {
+        console.error('Geolocation error:', geoError);
+      }
+    }
+
+    throw new Error("कृपया city name enter करें या location permission दें।");
+  }
+};
+
+function initializeEventListeners() {
+  const debouncedSendMessage = Utils.debounce(() => {
+    const query = Elements.userInput.value.trim();
+    if (query && !AppState.isProcessing) {
+      MessageHandler.handleUserMessage(query);
+    }
+  }, 300);
+
+  Elements.sendBtn.addEventListener('click', debouncedSendMessage);
+
+  Elements.userInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey && !AppState.isProcessing) {
+      e.preventDefault();
+      debouncedSendMessage();
+    }
+  });
+
+  document.querySelectorAll('.quick-action').forEach(button => {
+    button.addEventListener('click', () => {
+      if (AppState.isProcessing) return;
+      
+      const query = button.dataset.query;
+      Elements.userInput.value = query;
+      MessageHandler.handleUserMessage(query);
+    });
+  });
+
+  Elements.geoBtn.addEventListener('click', async () => {
+    if (!navigator.geolocation) {
+      UIManager.addMessage('error', '❌ Geolocation not supported by your browser.');
+      return;
+    }
+
+    Utils.updateStatus('loading', 'Getting your location...');
+    
+    try {
+      const position = await new Promise((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(
+          resolve, 
+          reject, 
+          {
+            enableHighAccuracy: true,
+            timeout: 15000,
+            maximumAge: 300000
+          }
+        );
+      });
+      
+      const data = await WeatherAPI.fetchByCoords(
+        position.coords.latitude,
+        position.coords.longitude
+      );
+      
+      UIManager.updateForecastDisplay(data);
+      Elements.cityInput.value = data.city.name;
+      Utils.updateStatus('online', 'Location detected successfully');
+      
+      UIManager.addMessage('bot', `📍 Location set to **${data.city.name}, ${data.city.country}**. Ab aap कोई भी weather question पूछ सकते हैं!`);
+      
+    } catch (error) {
+      Utils.updateStatus('offline', 'Location access failed');
+      
+      if (error.code === 1) {
+        UIManager.addMessage('error', '❌ Location permission denied. Please enable location access या manual city name enter करें।');
+      } else if (error.code === 2) {
+        UIManager.addMessage('error', '❌ Location unavailable. GPS signal weak हो सकता है। City name try करें।');
+      } else if (error.code === 3) {
+        UIManager.addMessage('error', '❌ Location timeout. Network slow हो सकता है। Manual city enter करें।');
+      } else {
+        UIManager.addMessage('error', '❌ Location error occurred। Manual city name enter करें।');
+      }
+    }
+  });
+
+  Elements.micBtn.addEventListener('click', () => {
+    if (AppState.isListening) {
+      if (AppState.recognition) {
+        AppState.recognition.stop();
+      }
+      return;
+    }
+
+    if (!AppState.recognition) {
+      AppState.recognition = VoiceSystem.initSpeechRecognition();
+    }
+    
+    if (!AppState.recognition) {
+      UIManager.addMessage('error', '🎤 Voice input not supported in your browser। Text में type करें।');
+      return;
+    }
+    
+    try {
+      AppState.recognition.start();
+    } catch (error) {
+      console.error('Speech recognition error:', error);
+      UIManager.addMessage('error', '🎤 Voice input temporarily unavailable। Text में type करें।');
+    }
+  });
+
+  Elements.speakBtn.addEventListener('click', () => {
+    if (AppState.isSpeaking) {
+      AppState.synthesis.cancel();
+      AppState.isSpeaking = false;
+      Elements.speakBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
+      return;
+    }
+
+    if (AppState.lastBotMessage) {
+      VoiceSystem.speak(AppState.lastBotMessage);
+    } else {
+      UIManager.addMessage('bot', '🔊 कोई message नहीं मिला। Pehle कोई question पूछें!');
+    }
+  });
+
+  Elements.quickTipsBtn.addEventListener('click', () => {
+    if (AppState.isProcessing) return;
+
+    const tips = [
+      "Aaj ka complete weather analysis batao",
+      "Kal subah exercise ke liye best time",
+      "Weekend weather planning guide", 
+      "Current temperature aur clothing suggestions",
+      "Rain probability next 24 hours"
+    ];
+    
+    const randomTip = tips[Math.floor(Math.random() * tips.length)];
+    Elements.userInput.value = randomTip;
+    MessageHandler.handleUserMessage(randomTip);
+  });
+
+  const debouncedCityChange = Utils.debounce(async () => {
+    const cityName = Elements.cityInput.value.trim();
+    if (cityName && cityName.length > 2) {
+      try {
+        Utils.updateStatus('loading', 'Fetching weather data...');
+        const data = await WeatherAPI.fetchByCity(cityName);
+        UIManager.updateForecastDisplay(data);
+        Utils.updateStatus('online', 'Weather data updated');
+      } catch (error) {
+        Utils.updateStatus('offline', 'City not found');
+        console.error('City fetch error:', error);
+      }
+    }
+  }, 1000);
+
+  Elements.cityInput.addEventListener('input', debouncedCityChange);
+
+  window.addEventListener('error', (event) => {
+    console.error('Global error:', event.error);
+    Utils.updateStatus('offline', 'System error occurred');
+    UIManager.addMessage('error', '⚠️ System error occurred. Please try again or reload the page.');
+  });
+
+  window.addEventListener('online', () => {
+    AppState.offlineMode = false;
+    Utils.updateStatus('online', 'Connection restored');
+    UIManager.addMessage('bot', '🌐 Internet connection restored! Full AI features available.');
+  });
+
+  window.addEventListener('offline', () => {
+    AppState.offlineMode = true;
+    Utils.updateStatus('offline', 'Offline mode');
+    UIManager.addMessage('bot', '📴 Offline mode active. Basic weather features available.');
+  });
+  
+  Elements.reloadBtn.addEventListener('click', () => {
+    location.reload();
+  });
+}
+
+async function initializeApp() {
+  try {
+    Utils.updateStatus('loading', 'Starting WeatherMind AI...');
+    
+    initializeEventListeners();
+    
+    if (!navigator.onLine) {
+      AppState.offlineMode = true;
+      Utils.updateStatus('offline', 'Offline mode');
+    }
+
+    const initialCity = Elements.cityInput.value.trim();
+    if (initialCity) {
+      try {
+        const data = await WeatherAPI.fetchByCity(initialCity);
+        UIManager.updateForecastDisplay(data);
+        Utils.updateStatus('online', 'AI Weather System Online');
+      } catch (error) {
+        console.error('Initial city fetch error:', error);
+        Utils.updateStatus('online', 'Enter city name to start');
+      }
+    } else {
+      Utils.updateStatus('online', 'AI Weather System Online');
+    }
+    
+    Elements.userInput.focus();
+    
+    setTimeout(() => {
+      if (!AppState.offlineMode && RateLimiter.canMakeRequest()) {
+        UIManager.addMessage('bot', '🚀 **WeatherMind AI fully initialized!** \n\nSmart rate limiting active. Full AI responses available. Location detect करने के लिए 📍 button दबाएं या city name enter करें।');
+      } else {
+        UIManager.addMessage('bot', '🤖 **WeatherMind AI ready in smart mode!** \n\nLocal intelligence active. Weather analysis और recommendations available. Location के लिए city name enter करें।');
+      }
+    }, 1000);
+    
+    console.log('🌤️ WeatherMind AI initialized successfully with error handling!');
+    
+  } catch (error) {
+    console.error('App initialization error:', error);
+    Utils.updateStatus('offline', 'Initialization failed');
+    UIManager.addMessage('error', '⚠️ App failed to initialize. Please refresh the page.');
+  }
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initializeApp);
+} else {
+  initializeApp();
+}
+
+window.addEventListener('beforeunload', () => {
+  if (AppState.synthesis.speaking) {
+    AppState.synthesis.cancel();
+  }
+  if (AppState.recognition) {
+    AppState.recognition.stop();
+  }
+});
+
+</script>
+</body>
+</html>

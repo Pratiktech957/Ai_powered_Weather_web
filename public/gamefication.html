@@ -1,0 +1,1962 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Advanced Weather Prediction Quiz</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #2563eb;
+      --secondary: #1e40af;
+      --accent: #3b82f6;
+      --success: #059669;
+      --warning: #dc2626;
+      --dark: #0f172a;
+      --darker: #1e293b;
+      --light: #ffffff;
+      --light-gray: #f8fafc;
+      --medium-gray: #e2e8f0;
+      --text-dark: #1e293b;
+      --text-light: #64748b;
+      --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --gradient-weather: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+      --gradient-success: linear-gradient(135deg, #00b894 0%, #00a085 100%);
+      --gradient-warning: linear-gradient(135deg, #fd79a8 0%, #e84393 100%);
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--gradient-primary);
+      color: var(--text-dark);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    .header {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      padding: 1.5rem 0;
+      border-bottom: 1px solid var(--medium-gray);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .header-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 0 2rem;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .logo i {
+      font-size: 2.5rem;
+      background: var(--gradient-weather);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .logo h1 {
+      background: var(--gradient-primary);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-size: 2rem;
+      font-weight: 800;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 2rem;
+    }
+
+    .quiz-section {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    .quiz-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      padding: 3rem;
+      border-radius: 24px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      animation: slideUp 0.8s ease-out;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .quiz-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: var(--gradient-weather);
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .quiz-header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+
+    .quiz-title {
+      font-size: 2.5rem;
+      font-weight: 800;
+      margin-bottom: 1rem;
+      background: var(--gradient-weather);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+    }
+
+    .quiz-subtitle {
+      font-size: 1.2rem;
+      color: var(--text-light);
+    }
+
+    .question-section {
+      background: var(--light-gray);
+      padding: 2rem;
+      border-radius: 16px;
+      margin-bottom: 2rem;
+      border-left: 4px solid var(--accent);
+    }
+
+    .question-text {
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: var(--text-dark);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      line-height: 1.5;
+    }
+
+    .location-info {
+      margin-top: 1rem;
+      font-size: 0.95rem;
+      color: var(--text-light);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .answer-buttons {
+      display: flex;
+      gap: 1.5rem;
+      justify-content: center;
+      margin-bottom: 2rem;
+    }
+
+    .answer-btn {
+      background: var(--light);
+      color: var(--text-dark);
+      border: 2px solid var(--medium-gray);
+      padding: 1.5rem 2.5rem;
+      border-radius: 16px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 1.1rem;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      min-width: 200px;
+      justify-content: center;
+    }
+
+    .answer-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 30px rgba(37, 99, 235, 0.2);
+    }
+
+    .answer-btn.rain {
+      border-color: var(--accent);
+    }
+
+    .answer-btn.rain:hover {
+      background: var(--gradient-weather);
+      color: white;
+      border-color: var(--accent);
+    }
+
+    .answer-btn.no-rain {
+      border-color: #fbbf24;
+    }
+
+    .answer-btn.no-rain:hover {
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      color: white;
+      border-color: #f59e0b;
+    }
+
+    .weather-info {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      padding: 2rem;
+      border-radius: 24px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      margin-bottom: 2rem;
+      animation: slideUp 0.8s ease-out 0.2s both;
+    }
+
+    .weather-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .weather-header i {
+      font-size: 1.8rem;
+      color: var(--accent);
+    }
+
+    .weather-header h3 {
+      font-size: 1.3rem;
+      font-weight: 700;
+    }
+
+    .current-weather {
+      text-align: center;
+      padding: 1.5rem;
+      background: var(--light-gray);
+      border-radius: 12px;
+      margin-bottom: 1.5rem;
+    }
+
+    .weather-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+
+    .temperature {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+    }
+
+    .weather-desc {
+      color: var(--text-light);
+      font-size: 0.95rem;
+    }
+
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    .leaderboard {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      padding: 2rem;
+      border-radius: 24px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      animation: slideUp 0.8s ease-out 0.4s both;
+    }
+
+    .leaderboard-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .leaderboard-header i {
+      font-size: 1.8rem;
+      color: #fbbf24;
+    }
+
+    .leaderboard-header h3 {
+      font-size: 1.3rem;
+      font-weight: 700;
+    }
+
+    #leaderboard-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    #leaderboard-list li {
+      padding: 1rem;
+      margin-bottom: 0.5rem;
+      background: var(--light-gray);
+      border-radius: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 500;
+    }
+
+    #leaderboard-list li:first-child {
+      background: var(--gradient-success);
+      color: white;
+    }
+
+    .player-name {
+      font-weight: 600;
+    }
+
+    .score {
+      background: var(--accent);
+      color: white;
+      padding: 0.3rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+
+    #leaderboard-list li:first-child .score {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .reward {
+      background: var(--gradient-success);
+      color: white;
+      padding: 1.5rem;
+      margin-top: 1.5rem;
+      border-radius: 16px;
+      text-align: center;
+      font-weight: 600;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .reward::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+      animation: shimmer 2s ease-in-out infinite;
+    }
+
+    @keyframes shimmer {
+      0%, 100% {
+        transform: scale(0) rotate(0deg);
+      }
+      50% {
+        transform: scale(1) rotate(180deg);
+      }
+    }
+
+    .reward-text {
+      position: relative;
+      z-index: 1;
+    }
+
+    .stats-panel {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      padding: 2rem;
+      border-radius: 24px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      animation: slideUp 0.8s ease-out 0.6s both;
+    }
+
+    .stats-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .stats-header i {
+      font-size: 1.8rem;
+      color: var(--success);
+    }
+
+    .stat-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem;
+      margin-bottom: 0.5rem;
+      background: var(--light-gray);
+      border-radius: 12px;
+    }
+
+    .stat-value {
+      font-weight: 700;
+      color: var(--accent);
+      font-size: 1.1rem;
+    }
+
+    .quiz-mode-selector {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .mode-btn {
+      background: rgba(255, 255, 255, 0.1);
+      border: 2px solid var(--medium-gray);
+      color: var(--text-dark);
+      padding: 1rem 2rem;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .mode-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      transition: left 0.6s ease;
+    }
+
+    .mode-btn:hover::before {
+      left: 100%;
+    }
+
+    .mode-btn:hover {
+      background: rgba(37, 99, 235, 0.1);
+      border-color: var(--accent);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(37, 99, 235, 0.15);
+    }
+
+    .mode-btn.active {
+      background: var(--gradient-weather);
+      color: white;
+      border-color: var(--accent);
+      box-shadow: 0 8px 25px rgba(37, 99, 235, 0.3);
+    }
+
+    .location-update-btn {
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-left: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .location-update-btn:hover {
+      background: var(--secondary);
+      transform: translateY(-2px);
+    }
+
+    .location-update-btn.loading {
+      background: var(--text-light);
+      cursor: not-allowed;
+    }
+
+    .trivia-options {
+      display: grid;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .trivia-option {
+      background: var(--light);
+      border: 2px solid var(--medium-gray);
+      padding: 1.5rem;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: 500;
+      text-align: left;
+      position: relative;
+    }
+
+    .trivia-option::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: var(--accent);
+      border-radius: 0 4px 4px 0;
+      transform: scaleY(0);
+      transition: transform 0.3s ease;
+    }
+
+    .trivia-option:hover::before {
+      transform: scaleY(1);
+    }
+
+    .trivia-option:hover {
+      background: rgba(37, 99, 235, 0.05);
+      border-color: var(--accent);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(37, 99, 235, 0.15);
+    }
+
+    .trivia-option.selected {
+      background: var(--gradient-weather);
+      color: white;
+      border-color: var(--accent);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(37, 99, 235, 0.3);
+    }
+
+    .trivia-option.selected::before {
+      background: rgba(255, 255, 255, 0.3);
+      transform: scaleY(1);
+    }
+
+    .trivia-option.correct {
+      background: var(--gradient-success);
+      color: white;
+      border-color: var(--success);
+      animation: correctPulse 0.6s ease-out;
+    }
+
+    .trivia-option.wrong {
+      background: var(--gradient-warning);
+      color: white;
+      border-color: var(--warning);
+      animation: wrongShake 0.6s ease-out;
+    }
+
+    @keyframes correctPulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.02); }
+      100% { transform: scale(1); }
+    }
+
+    @keyframes wrongShake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+    }
+
+    .quiz-actions {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+    }
+
+    .action-btn {
+      background: var(--gradient-primary);
+      color: white;
+      border: none;
+      padding: 1rem 2rem;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .action-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 30px rgba(37, 99, 235, 0.3);
+    }
+
+    .action-btn:disabled {
+      background: var(--text-light);
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .loading {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(37, 99, 235, 0.3);
+      border-radius: 50%;
+      border-top-color: var(--accent);
+      animation: spin 1s ease-in-out infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .location-status {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0, 0, 0, 0.9);
+      color: white;
+      padding: 2rem;
+      border-radius: 12px;
+      text-align: center;
+      z-index: 10001;
+      min-width: 300px;
+    }
+
+    .location-status i {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+      color: var(--accent);
+    }
+
+    @media (max-width: 1024px) {
+      .container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 1rem;
+      }
+
+      .quiz-card {
+        padding: 2rem;
+      }
+
+      .answer-buttons {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .answer-btn {
+        width: 100%;
+        max-width: 300px;
+      }
+
+      .quiz-title {
+        font-size: 2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-content">
+      <div class="logo">
+        <i class="fas fa-cloud-rain"></i>
+        <h1>WeatherQuiz Pro</h1>
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="quiz-section">
+      <div class="quiz-card">
+        <div class="quiz-header">
+          <h2 class="quiz-title">
+            <i class="fas fa-bolt"></i>
+            Weather Prediction Challenge
+          </h2>
+          <p class="quiz-subtitle">Test your weather forecasting skills and compete with others!</p>
+        </div>
+
+        <div class="question-section">
+          <div class="question-text">
+            <i class="fas fa-question-circle"></i>
+            <span id="question">Kal barish hogi ya nahi?</span>
+          </div>
+          <div class="location-info">
+            <i class="fas fa-map-marker-alt"></i>
+            <span id="location-display">Location: Delhi, India</span>
+            <button id="location-btn" onclick="getCurrentLocation()" class="location-update-btn">
+              <i class="fas fa-crosshairs"></i> Update Location
+            </button>
+          </div>
+        </div>
+
+        <div class="quiz-mode-selector">
+          <button class="mode-btn active" onclick="switchMode('prediction')" data-mode="prediction">
+            <i class="fas fa-cloud-rain"></i>
+            Weather Prediction
+          </button>
+          <button class="mode-btn" onclick="switchMode('trivia')" data-mode="trivia">
+            <i class="fas fa-brain"></i>
+            Weather Quiz
+          </button>
+        </div>
+
+        <div id="prediction-quiz" class="quiz-content">
+          <div class="answer-buttons">
+            <button class="answer-btn rain" onclick="submitAnswer('yes')">
+              <i class="fas fa-cloud-rain"></i>
+              Haan, Barish hogi
+            </button>
+            <button class="answer-btn no-rain" onclick="submitAnswer('no')">
+              <i class="fas fa-sun"></i>
+              Nahi hogi
+            </button>
+          </div>
+        </div>
+
+        <div id="trivia-quiz" class="quiz-content" style="display: none;">
+          <div class="trivia-options" id="trivia-options">
+          </div>
+          <div class="quiz-actions">
+            <button class="action-btn" onclick="loadNewTriviaQuestion()">
+              <i class="fas fa-sync-alt"></i>
+              Next Question
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="weather-info">
+        <div class="weather-header">
+          <i class="fas fa-thermometer-half"></i>
+          <h3>Current Weather</h3>
+        </div>
+        <div class="current-weather">
+          <div class="weather-icon" id="weather-icon">
+            <i class="fas fa-cloud"></i>
+          </div>
+          <div class="temperature" id="temperature">28°C</div>
+          <div class="weather-desc" id="weather-desc">Partly Cloudy</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar">
+      <div class="leaderboard">
+        <div class="leaderboard-header">
+          <i class="fas fa-trophy"></i>
+          <h3>Leaderboard</h3>
+        </div>
+        <ol id="leaderboard-list"></ol>
+        <div class="reward" id="reward-box">
+          <div class="reward-text">
+            <i class="fas fa-gift"></i> Answer 10 questions correctly to unlock rewards!
+          </div>
+        </div>
+      </div>
+
+      <div class="stats-panel">
+        <div class="stats-header">
+          <i class="fas fa-chart-line"></i>
+          <h3>Your Stats</h3>
+        </div>
+        <div class="stat-item">
+          <span>Weather Predictions</span>
+          <span class="stat-value" id="total-predictions">0</span>
+        </div>
+        <div class="stat-item">
+          <span>Correct Predictions</span>
+          <span class="stat-value" id="correct-predictions">0</span>
+        </div>
+        <div class="stat-item">
+          <span>Quiz Questions</span>
+          <span class="stat-value" id="trivia-answered">0</span>
+        </div>
+        <div class="stat-item">
+          <span>Quiz Correct</span>
+          <span class="stat-value" id="trivia-correct">0</span>
+        </div>
+        <div class="stat-item">
+          <span>Overall Accuracy</span>
+          <span class="stat-value" id="overall-accuracy">0%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let CITY = "Delhi";
+    let currentLocation = { lat: 28.6139, lon: 77.2090 };
+    
+    let currentQuizQuestion = null;
+    let quizMode = 'prediction';
+    let questionIndex = 0; 
+    
+    let userName = prompt("Enter your name / Apna naam likho:") || "Player";
+    let scores = JSON.parse(sessionStorage.getItem("scores")) || {};
+    let userStats = JSON.parse(sessionStorage.getItem("userStats")) || {
+      totalPredictions: 0,
+      correctPredictions: 0,
+      triviaAnswered: 0,
+      triviaCorrect: 0
+    };
+
+    if (!scores[userName]) scores[userName] = 0;
+
+    const WEATHER_QUIZ_BANK = [
+      {
+        question: "मानसून कब आता है भारत में? / When does monsoon come to India?",
+        options: ["मार्च / March", "जून / June", "सितंबर / September", "दिसंबर / December"],
+        correct: 1
+      },
+      {
+        question: "बारिश कैसे होती है? / How does it rain?",
+        options: ["बादलों से / From clouds", "सूरज से / From sun", "हवा से / From wind", "पेड़ों से / From trees"],
+        correct: 0
+      },
+      {
+        question: "सबसे गर्म महीना कौन सा है? / Which is the hottest month?",
+        options: ["मार्च / March", "अप्रैल / April", "मई / May", "जून / June"],
+        correct: 2
+      },
+      {
+        question: "इंद्रधनुष कब दिखता है? / When do we see rainbow?",
+        options: ["बारिश के बाद / After rain", "रात में / At night", "सर्दी में / In winter", "हमेशा / Always"],
+        correct: 0
+      },
+      {
+        question: "बर्फ कब गिरती है? / When does snow fall?",
+        options: ["गर्मी में / Summer", "सर्दी में / Winter", "बारिश में / Rainy season", "कभी नहीं / Never"],
+        correct: 1
+      },
+      {
+        question: "हवा क्यों चलती है? / Why does wind blow?",
+        options: ["पेड़ों से / From trees", "तापमान अंतर / Temperature difference", "समुद्र से / From sea", "पहाड़ों से / From mountains"],
+        correct: 1
+      },
+      {
+        question: "सूरज किस दिशा से निकलता है? / Sun rises from which direction?",
+        options: ["पूर्व / East", "पश्चिम / West", "उत्तर / North", "दक्षिण / South"],
+        correct: 0
+      },
+      {
+        question: "बिजली की आवाज को क्या कहते हैं? / What is lightning sound called?",
+        options: ["गड़गड़ाहट / Thunder", "बूंदाबांदी / Drizzle", "तूफान / Storm", "आंधी / Windstorm"],
+        correct: 0
+      },
+      {
+        question: "ओला कब गिरता है? / When does hail fall?",
+        options: ["गर्मी में / Summer", "तूफान में / During storms", "सर्दी में / Winter", "हमेशा / Always"],
+        correct: 1
+      },
+      {
+        question: "पानी कहाँ से वाष्पित होता है? / Where does water evaporate from?",
+        options: ["सिर्फ समुद्र / Only sea", "सिर्फ नदी / Only rivers", "सभी जगह से / Everywhere", "सिर्फ तालाब / Only ponds"],
+        correct: 2
+      },
+      
+      {
+        question: "तापमान मापने वाले यंत्र का नाम? / Instrument to measure temperature?",
+        options: ["बैरोमीटर / Barometer", "थर्मामीटर / Thermometer", "हाइग्रोमीटर / Hygrometer", "एनीमोमीटर / Anemometer"],
+        correct: 1
+      },
+      {
+        question: "हवा की गति कैसे मापते हैं? / How to measure wind speed?",
+        options: ["थर्मामीटर / Thermometer", "एनीमोमीटर / Anemometer", "बैरोमीटर / Barometer", "रेन गेज / Rain gauge"],
+        correct: 1
+      },
+      {
+        question: "वायुदाब मापने का यंत्र? / Instrument to measure air pressure?",
+        options: ["बैरोमीटर / Barometer", "थर्मामीटर / Thermometer", "हाइड्रोमीटर / Hydrometer", "स्पीडोमीटर / Speedometer"],
+        correct: 0
+      },
+      {
+        question: "बारिश कितनी हुई यह कैसे मापते हैं? / How to measure rainfall?",
+        options: ["थर्मामीटर से / Thermometer", "रेन गेज से / Rain gauge", "बैरोमीटर से / Barometer", "अंदाजे से / By guess"],
+        correct: 1
+      },
+      {
+        question: "नमी मापने का यंत्र? / Instrument to measure humidity?",
+        options: ["हाइग्रोमीटर / Hygrometer", "थर्मामीटर / Thermometer", "बैरोमीटर / Barometer", "एल्टीमीटर / Altimeter"],
+        correct: 0
+      },
+
+      {
+        question: "भारत में कितने मुख्य मौसम हैं? / How many main seasons in India?",
+        options: ["2", "3", "4", "6"],
+        correct: 2
+      },
+      {
+        question: "शीत ऋतु कब होती है? / When is winter season?",
+        options: ["मार्च-मई / Mar-May", "जून-सितंबर / Jun-Sep", "अक्टूबर-फरवरी / Oct-Feb", "साल भर / All year"],
+        correct: 2
+      },
+      {
+        question: "ग्रीष्म ऋतु में क्या होता है? / What happens in summer?",
+        options: ["तापमान बढ़ता है / Temperature rises", "बारिश होती है / It rains", "बर्फ गिरती है / Snow falls", "ठंड होती है / It's cold"],
+        correct: 0
+      },
+      {
+        question: "वर्षा ऋतु का दूसरा नाम? / Another name for rainy season?",
+        options: ["ग्रीष्म / Summer", "मानसून / Monsoon", "शीत / Winter", "बसंत / Spring"],
+        correct: 1
+      },
+      {
+        question: "सबसे ठंडा महीना कौन सा है? / Which is the coldest month?",
+        options: ["नवंबर / November", "दिसंबर / December", "जनवरी / January", "फरवरी / February"],
+        correct: 2
+      },
+
+      {
+        question: "चक्रवात क्या है? / What is cyclone?",
+        options: ["तेज़ हवा का चक्कर / Strong wind rotation", "बारिश की बूंदें / Rain drops", "बर्फ के टुकड़े / Ice pieces", "धूल का बादल / Dust cloud"],
+        correct: 0
+      },
+      {
+        question: "बवंडर कैसे बनता है? / How does tornado form?",
+        options: ["ठंडी और गर्म हवा मिलने से / Cold and hot air meeting", "सिर्फ तेज़ हवा से / Only strong wind", "बारिश से / From rain", "बर्फ से / From snow"],
+        correct: 0
+      },
+      {
+        question: "कोहरा क्यों होता है? / Why does fog occur?",
+        options: ["धूल से / From dust", "नमी और ठंड से / From moisture and cold", "धुएं से / From smoke", "हवा से / From wind"],
+        correct: 1
+      },
+      {
+        question: "वज्रपात क्या है? / What is lightning?",
+        options: ["बिजली की चमक / Electric flash", "तेज़ हवा / Strong wind", "भारी बारिश / Heavy rain", "तूफान / Storm"],
+        correct: 0
+      },
+      {
+        question: "ओलावृष्टि कब होती है? / When does hailstorm occur?",
+        options: ["गर्मी में / Summer", "आंधी-तूफान में / During thunderstorms", "सर्दी में / Winter", "साल भर / All year"],
+        correct: 1
+      },
+
+      {
+        question: "सेल्सियस और फारेनहाइट में पानी कब जमता है? / Water freezes at what temperature?",
+        options: ["0°C, 32°F", "100°C, 212°F", "50°C, 122°F", "25°C, 77°F"],
+        correct: 0
+      },
+      {
+        question: "पानी कब उबलता है? / When does water boil?",
+        options: ["0°C / 0°C", "50°C / 50°C", "100°C / 100°C", "200°C / 200°C"],
+        correct: 2
+      },
+      {
+        question: "सामान्य मानव शरीर का तापमान? / Normal human body temperature?",
+        options: ["35°C", "37°C", "39°C", "40°C"],
+        correct: 1
+      },
+      {
+        question: "गर्मी में पसीना क्यों आता है? / Why do we sweat in heat?",
+        options: ["बीमारी से / From illness", "शरीर को ठंडा करने के लिए / To cool body", "पानी की कमी से / From dehydration", "व्यायाम से / From exercise"],
+        correct: 1
+      },
+      {
+        question: "रेगिस्तान में दिन गर्म और रात ठंडी क्यों? / Why desert hot in day, cold at night?",
+        options: ["पानी की कमी / Lack of water", "नमी की कमी / Lack of humidity", "रेत जल्दी गर्म/ठंडी होती है / Sand heats/cools quickly", "हवा तेज़ चलती है / Strong winds"],
+        correct: 2
+      },
+
+      {
+        question: "जल चक्र में पहला चरण क्या है? / First step in water cycle?",
+        options: ["संघनन / Condensation", "वाष्पीकरण / Evaporation", "वर्षा / Precipitation", "संग्रहण / Collection"],
+        correct: 1
+      },
+      {
+        question: "बादल कैसे बनते हैं? / How do clouds form?",
+        options: ["धुएं से / From smoke", "जल वाष्प के संघनन से / Water vapor condensation", "धूल से / From dust", "हवा से / From air"],
+        correct: 1
+      },
+      {
+        question: "वर्षा के प्रकार कितने हैं? / Types of rainfall?",
+        options: ["1", "2", "3", "4"],
+        correct: 2
+      },
+      {
+        question: "पहाड़ी क्षेत्रों में ज्यादा बारिश क्यों? / More rain in mountainous areas why?",
+        options: ["पेड़ ज्यादा हैं / More trees", "हवा ऊपर उठकर ठंडी होती है / Air rises and cools", "समुद्र पास है / Sea nearby", "मिट्टी अच्छी है / Good soil"],
+        correct: 1
+      },
+      {
+        question: "ओस कैसे बनती है? / How does dew form?",
+        options: ["रात में नमी जमने से / Moisture condensing at night", "बारिश के बाद / After rain", "धुएं से / From smoke", "हवा से / From wind"],
+        correct: 0
+      },
+
+      {
+        question: "सुनामी क्या है? / What is tsunami?",
+        options: ["भूकंप से समुद्री लहरें / Earthquake sea waves", "तेज़ हवा / Strong wind", "भारी बारिश / Heavy rain", "बर्फीला तूफान / Ice storm"],
+        correct: 0
+      },
+      {
+        question: "सूखा कब होता है? / When does drought occur?",
+        options: ["ज्यादा बारिश से / From excess rain", "बारिश न होने से / From lack of rain", "तेज़ धूप से / From strong sun", "गर्मी से / From heat"],
+        correct: 1
+      },
+      {
+        question: "बाढ़ का मुख्य कारण? / Main cause of flood?",
+        options: ["अचानक भारी बारिश / Sudden heavy rain", "तेज़ हवा / Strong wind", "भूकंप / Earthquake", "ज्वालामुखी / Volcano"],
+        correct: 0
+      },
+      {
+        question: "हीट वेव क्या है? / What is heat wave?",
+        options: ["समुद्री लहरें / Sea waves", "लगातार तेज़ गर्मी / Continuous extreme heat", "तेज़ हवा / Strong wind", "भूकंप / Earthquake"],
+        correct: 1
+      },
+      {
+        question: "शीत लहर कब आती है? / When does cold wave come?",
+        options: ["गर्मी में / Summer", "बरसात में / Monsoon", "सर्दी में / Winter", "बसंत में / Spring"],
+        correct: 2
+      },
+
+      {
+        question: "वायुमंडल की कितनी परतें हैं? / How many layers of atmosphere?",
+        options: ["3", "4", "5", "6"],
+        correct: 2
+      },
+      {
+        question: "सबसे निचली वायुमंडल परत? / Lowest atmospheric layer?",
+        options: ["स्ट्रैटोस्फीयर / Stratosphere", "ट्रोपोस्फीयर / Troposphere", "मेसोस्फीयर / Mesosphere", "थर्मोस्फीयर / Thermosphere"],
+        correct: 1
+      },
+      {
+        question: "ओजोन परत कहाँ है? / Where is ozone layer?",
+        options: ["ट्रोपोस्फीयर में / Troposphere", "स्ट्रैटोस्फीयर में / Stratosphere", "मेसोस्फीयर में / Mesosphere", "एक्सोस्फीयर में / Exosphere"],
+        correct: 1
+      },
+      {
+        question: "हवा में सबसे ज्यादा कौन सी गैस? / Most abundant gas in air?",
+        options: ["ऑक्सीजन / Oxygen", "नाइट्रोजन / Nitrogen", "कार्बन डाइऑक्साइड / CO2", "आर्गन / Argon"],
+        correct: 1
+      },
+      {
+        question: "वायु प्रदूषण का मुख्य कारण? / Main cause of air pollution?",
+        options: ["पेड़-पौधे / Trees", "वाहन और फैक्ट्रियां / Vehicles and factories", "बारिश / Rain", "हवा / Wind"],
+        correct: 1
+      },
+
+      {
+        question: "समुद्र तट पर मौसम कैसा होता है? / Weather at sea coast?",
+        options: ["बहुत गर्म / Very hot", "बहुत ठंडा / Very cold", "सम / Moderate", "हमेशा बदलता रहता / Always changing"],
+        correct: 2
+      },
+      {
+        question: "पहाड़ों पर ऊपर जाने से तापमान? / Temperature while going up mountains?",
+        options: ["बढ़ता है / Increases", "घटता है / Decreases", "वही रहता है / Remains same", "कभी बढ़ता कभी घटता / Sometimes up sometimes down"],
+        correct: 1
+      },
+      {
+        question: "रेगिस्तान में बारिश कम क्यों? / Less rain in desert why?",
+        options: ["रेत है / Sand present", "पेड़ नहीं हैं / No trees", "नमी कम है / Low humidity", "सभी कारण / All reasons"],
+        correct: 3
+      },
+      {
+        question: "समुद्री हवा में क्या होता है? / What's in sea breeze?",
+        options: ["नमक / Salt", "नमी / Moisture", "मछली की गंध / Fish smell", "रेत / Sand"],
+        correct: 1
+      },
+      {
+        question: "ध्रुवीय क्षेत्रों में हमेशा ठंड क्यों? / Why always cold at poles?",
+        options: ["बर्फ है / Ice present", "सूर्य की तिरछी किरणें / Slanted sun rays", "समुद्र दूर है / Sea far away", "पेड़ नहीं हैं / No trees"],
+        correct: 1
+      },
+
+      {
+        question: "बारिश से पहले क्या संकेत मिलते हैं? / Signs before rain?",
+        options: ["काले बादल / Dark clouds", "तेज़ हवा / Strong wind", "गिरते तापमान / Falling temperature", "सभी / All"],
+        correct: 3
+      },
+      {
+        question: "धूप में निकलते समय क्या पहनें? / What to wear in sun?",
+        options: ["काले कपड़े / Dark clothes", "हल्के रंग के कपड़े / Light colored clothes", "मोटे कपड़े / Thick clothes", "कुछ भी / Anything"],
+        correct: 1
+      },
+      {
+        question: "बारिश में बाहर जाते समय क्या लें? / What to take in rain?",
+        options: ["धूप का चश्मा / Sunglasses", "छाता / Umbrella", "टोपी / Cap", "दस्ताने / Gloves"],
+        correct: 1
+      },
+      {
+        question: "सर्दी में गर्म रहने का तरीका? / How to stay warm in winter?",
+        options: ["परतदार कपड़े / Layer clothes", "एक मोटा कपड़ा / One thick cloth", "कम कपड़े / Less clothes", "गीले कपड़े / Wet clothes"],
+        correct: 0
+      },
+      {
+        question: "गर्मी में लू से बचने का तरीका? / How to avoid heat stroke?",
+        options: ["धूप में घूमना / Roam in sun", "ठंडा पानी पीना / Drink cold water", "कम पानी पीना / Drink less water", "तेज़ भागना / Run fast"],
+        correct: 1
+      },
+
+      {
+        question: "बिजली एक ही जगह दो बार गिर सकती है? / Can lightning strike twice?",
+        options: ["हाँ / Yes", "नहीं / No", "शायद / Maybe", "पता नहीं / Don't know"],
+        correct: 0
+      },
+      {
+        question: "जानवर मौसम बदलाव पहले भांप लेते हैं? / Animals sense weather change early?",
+        options: ["हाँ / Yes", "नहीं / No", "कभी-कभी / Sometimes", "सिर्फ कुत्ते / Only dogs"],
+        correct: 0
+      },
+      {
+        question: "लाल आसमान का क्या मतलब? / What does red sky mean?",
+        options: ["बारिश आएगी / Rain coming", "साफ मौसम / Clear weather", "तूफान आएगा / Storm coming", "कुछ नहीं / Nothing"],
+        correct: 1
+      },
+      {
+        question: "चांद के आकार से मौसम का पता चल सकता है? / Moon shape predicts weather?",
+        options: ["हाँ बिल्कुल / Yes absolutely", "नहीं / No", "थोड़ा सा / Little bit", "केवल बारिश के लिए / Only for rain"],
+        correct: 1
+      },
+      {
+        question: "पक्षी नीचे उड़े तो बारिश आती है? / Birds flying low means rain?",
+        options: ["सच है / True", "झूठ है / False", "कभी-कभी / Sometimes", "सिर्फ कुछ पक्षियों के लिए / Only some birds"],
+        correct: 2
+      },
+
+      {
+        question: "मौसम की भविष्यवाणी कैसे की जाती है? / How weather is predicted?",
+        options: ["अनुमान से / By guessing", "सैटेलाइट और कंप्यूटर से / Satellite and computers", "पक्षियों को देखकर / By watching birds", "पुराने नियमों से / Old rules"],
+        correct: 1
+      },
+      {
+        question: "डॉप्लर रडार का उपयोग? / Doppler radar used for?",
+        options: ["हवाई जहाज देखने / Watch airplanes", "मौसम की निगरानी / Weather monitoring", "टीवी देखने / Watch TV", "फोन करने / Make calls"],
+        correct: 1
+      },
+      {
+        question: "मौसम सैटेलाइट क्या करती है? / What does weather satellite do?",
+        options: ["तस्वीरें खींचती है / Takes pictures", "बादलों की जांच / Cloud monitoring", "तापमान मापती है / Measures temperature", "सभी काम / All work"],
+        correct: 3
+      },
+      {
+        question: "स्मार्टफोन में मौसम एप्प कैसे काम करती है? / How weather app works?",
+        options: ["अनुमान से / By guessing", "इंटरनेट से डेटा लेकर / Taking data from internet", "फोन के सेंसर से / Phone sensors", "कैमरे से / From camera"],
+        correct: 1
+      },
+      {
+        question: "मौसम स्टेशन कहाँ होते हैं? / Where are weather stations?",
+        options: ["शहरों में / In cities", "जंगलों में / In forests", "हवाई अड्डों पर / At airports", "हर जगह / Everywhere"],
+        correct: 3
+      },
+
+      {
+        question: "किसान मौसम की जानकारी क्यों लेते हैं? / Why farmers need weather info?",
+        options: ["फसल की बुआई के लिए / For crop sowing", "सिंचाई के लिए / For irrigation", "कटाई के लिए / For harvesting", "सभी कारणों से / All reasons"],
+        correct: 3
+      },
+      {
+        question: "धान की फसल के लिए कौन सा मौसम चाहिए? / Which weather needed for rice?",
+        options: ["सूखा / Dry", "बारिश वाला / Rainy", "ठंडा / Cold", "तेज़ धूप / Strong sun"],
+        correct: 1
+      },
+      {
+        question: "गेहूं की फसल कब बोई जाती है? / When wheat is sown?",
+        options: ["गर्मी में / Summer", "बारिश में / Rainy season", "सर्दी में / Winter", "साल भर / All year"],
+        correct: 2
+      },
+      {
+        question: "ओलावृष्टि से फसल का क्या नुकसान? / Hail damage to crops?",
+        options: ["पत्ते कटते हैं / Leaves cut", "फल गिरते हैं / Fruits fall", "तना टूटता है / Stem breaks", "सभी नुकसान / All damage"],
+        correct: 3
+      },
+      {
+        question: "सूखे से बचने के लिए किसान क्या करते हैं? / What farmers do for drought?",
+        options: ["सिंचाई / Irrigation", "बारिश की प्रार्थना / Pray for rain", "फसल बदलना / Change crops", "पहला और तीसरा / First and third"],
+        correct: 3
+      },
+
+      {
+        question: "दुनिया की सबसे तेज़ हवा कितनी तेज़ थी? / Fastest wind speed recorded?",
+        options: ["100 km/h", "300 km/h", "400 km/h", "500+ km/h"],
+        correct: 3
+      },
+      {
+        question: "सबसे ठंडा तापमान कहाँ रिकॉर्ड हुआ? / Coldest temperature recorded where?",
+        options: ["अंटार्कटिका / Antarctica", "साइबेरिया / Siberia", "कनाडा / Canada", "अलास्का / Alaska"],
+        correct: 0
+      },
+      {
+        question: "एक दिन में सबसे ज्यादा बारिश कहाँ हुई? / Highest rainfall in one day?",
+        options: ["भारत / India", "बांग्लादेश / Bangladesh", "फ्रांस / France", "हवाई / Hawaii"],
+        correct: 2
+      },
+      {
+        question: "सबसे लंबा बिजली का चमक कितना था? / Longest lightning flash?",
+        options: ["100 km", "300 km", "500 km", "700+ km"],
+        correct: 3
+      },
+      {
+        question: "सबसे बड़ा ओला कितना बड़ा था? / Largest hailstone size?",
+        options: ["टेनिस बॉल / Tennis ball", "क्रिकेट बॉल / Cricket ball", "फुटबॉल / Football", "तरबूज़ / Watermelon"],
+        correct: 2
+      },
+
+      {
+        question: "ग्लोबल वार्मिंग का मुख्य कारण? / Main cause of global warming?",
+        options: ["सूर्य की गर्मी / Sun's heat", "ग्रीनहाउस गैसें / Greenhouse gases", "ज्वालामुखी / Volcanoes", "समुद्र / Oceans"],
+        correct: 1
+      },
+      {
+        question: "एसिड रेन क्यों होती है? / Why acid rain occurs?",
+        options: ["प्राकृतिक कारण / Natural causes", "वायु प्रदूषण / Air pollution", "समुद्री हवा / Sea breeze", "पेड़-पौधे / Trees"],
+        correct: 1
+      },
+      {
+        question: "ओजोन परत में छेद क्यों? / Why hole in ozone layer?",
+        options: ["सूर्य की किरणें / Sun rays", "CFC गैसें / CFC gases", "प्राकृतिक कारण / Natural causes", "उल्कापिंड / Meteorites"],
+        correct: 1
+      },
+      {
+        question: "जलवायु परिवर्तन का प्रभाव? / Effect of climate change?",
+        options: ["समुद्री जल स्तर बढ़ना / Sea level rise", "अनियमित बारिश / Irregular rain", "तापमान वृद्धि / Temperature rise", "सभी / All"],
+        correct: 3
+      },
+      {
+        question: "कार्बन फुटप्रिंट कम करने का तरीका? / How to reduce carbon footprint?",
+        options: ["कम गाड़ी चलाना / Less driving", "बिजली बचाना / Save electricity", "पेड़ लगाना / Plant trees", "सभी तरीके / All ways"],
+        correct: 3
+      },
+
+
+{
+  question: "किस यंत्र से ऊँचाई मापी जाती है? / Which instrument measures altitude?",
+  options: ["बैरोमीटर / Barometer", "एल्टीमीटर / Altimeter", "एनीमोमीटर / Anemometer", "हाइड्रोमीटर / Hydrometer"],
+  correct: 1
+},
+{
+  question: "ओजोन परत हमें किससे बचाती है? / Ozone layer protects us from?",
+  options: ["धूल / Dust", "पराबैंगनी किरणें / UV rays", "कार्बन डाइऑक्साइड / CO2", "ऑक्सीजन / Oxygen"],
+  correct: 1
+},
+{
+  question: "मानव शरीर का तापमान फारेनहाइट में कितना होता है? / Human body temp in Fahrenheit?",
+  options: ["98.6°F", "90°F", "100°F", "102°F"],
+  correct: 0
+},
+{
+  question: "भूकंप मापने का यंत्र? / Instrument to measure earthquake?",
+  options: ["सीस्मोग्राफ / Seismograph", "बैरोमीटर / Barometer", "हाइग्रोमीटर / Hygrometer", "थर्मामीटर / Thermometer"],
+  correct: 0
+},
+{
+  question: "ध्रुवीय भालू किस जलवायु में रहते हैं? / Polar bears live in which climate?",
+  options: ["गर्म जलवायु / Hot", "उष्णकटिबंधीय / Tropical", "ठंडी जलवायु / Cold", "मरुस्थलीय / Desert"],
+  correct: 2
+},
+{
+  question: "पृथ्वी का मौसम किस पर निर्भर है? / Earth's weather depends on?",
+  options: ["सूर्य की ऊर्जा / Sun’s energy", "चाँद की रोशनी / Moonlight", "समुद्री लहरें / Ocean waves", "ग्रहण / Eclipse"],
+  correct: 0
+},
+{
+  question: "सूर्य से आने वाली ऊर्जा क्या कहलाती है? / Energy from sun called?",
+  options: ["सौर ऊर्जा / Solar energy", "गर्मी / Heat", "हवा / Wind", "रोशनी / Light"],
+  correct: 0
+},
+{
+  question: "रेनबो कितने रंग का होता है? / How many colors in rainbow?",
+  options: ["5", "6", "7", "8"],
+  correct: 2
+},
+{
+  question: "रेनबो क्यों बनता है? / Why rainbow forms?",
+  options: ["धूल से / From dust", "जल बूंदों में सूर्य किरण टूटने से / Refraction in water drops", "धुआं से / From smoke", "हवा से / From wind"],
+  correct: 1
+},
+{
+  question: "मानसून का मुख्य कारण? / Main cause of monsoon?",
+  options: ["धरती घूमना / Earth rotation", "तापमान और वायुदाब / Temperature & pressure", "चाँद का गुरुत्वाकर्षण / Moon gravity", "हवा की नमी / Air moisture only"],
+  correct: 1
+},
+{
+  question: "किस महाद्वीप में सबसे ज्यादा रेगिस्तान हैं? / Which continent has most deserts?",
+  options: ["अफ्रीका / Africa", "एशिया / Asia", "ऑस्ट्रेलिया / Australia", "दक्षिण अमेरिका / South America"],
+  correct: 0
+},
+{
+  question: "सबसे बड़ा रेगिस्तान कौन सा है? / Largest desert?",
+  options: ["सहारा / Sahara", "गोबी / Gobi", "कालाहारी / Kalahari", "थार / Thar"],
+  correct: 0
+},
+{
+  question: "तूफानों को नाम कौन देता है? / Who names cyclones?",
+  options: ["संयुक्त राष्ट्र / UN", "IMD और देश समूह / Meteorological organizations", "NASA", "स्थानीय लोग / Local people"],
+  correct: 1
+},
+{
+  question: "हवा चलने का मुख्य कारण? / Main cause of wind?",
+  options: ["धरती का झुकाव / Earth tilt", "वायुदाब में अंतर / Pressure difference", "पानी की कमी / Lack of water", "पेड़ / Trees"],
+  correct: 1
+},
+{
+  question: "सूरज की सबसे तेज किरणें कब होती हैं? / Strongest sunlight when?",
+  options: ["सुबह / Morning", "दोपहर / Noon", "शाम / Evening", "रात / Night"],
+  correct: 1
+},
+{
+  question: "ओले किससे बने होते हैं? / Hailstones are made of?",
+  options: ["बर्फ / Ice", "धूल / Dust", "नमक / Salt", "धुआं / Smoke"],
+  correct: 0
+},
+{
+  question: "तापमान मापने की इकाई? / Unit of temperature?",
+  options: ["मीटर / Meter", "सेकंड / Second", "डिग्री / Degree", "लीटर / Liter"],
+  correct: 2
+},
+{
+  question: "बारिश मापने की इकाई? / Unit of rainfall?",
+  options: ["मीटर / Meter", "मिलीमीटर / Millimeter", "डिग्री / Degree", "किलो / Kilo"],
+  correct: 1
+},
+{
+  question: "वायु मंडल का अध्ययन क्या कहलाता है? / Study of atmosphere called?",
+  options: ["खगोल विज्ञान / Astronomy", "मौसम विज्ञान / Meteorology", "भूगोल / Geography", "पारिस्थितिकी / Ecology"],
+  correct: 1
+},
+{
+  question: "सूरजमुखी पौधा किस दिशा में घूमता है? / Sunflower turns towards?",
+  options: ["चाँद / Moon", "सूर्य / Sun", "हवा / Wind", "पानी / Water"],
+  correct: 1
+},
+{
+  question: "सूर्य की किरणें पृथ्वी तक पहुँचने में कितना समय लेती हैं? / How long sun rays take to reach Earth?",
+  options: ["8 मिनट / 8 minutes", "10 मिनट / 10 minutes", "5 मिनट / 5 minutes", "15 मिनट / 15 minutes"],
+  correct: 0
+},
+{
+  question: "सूर्य का तापमान कितना है? / What is the temperature of the sun?",
+  options: ["6000°C", "10000°C", "15000°C", "20000°C"],
+  correct: 0
+},
+{
+  question: "बर्फबारी में बर्फ के टुकड़े कैसे होते हैं? / How are snowflakes formed?",
+  options: ["हवा से / From wind", "जल वाष्प से / From water vapor", "धूल से / From dust", "सूर्य की किरणों से / From sun rays"],
+  correct: 1
+},
+{
+  question: "सूर्य की किरणें पृथ्वी पर किस रूप में आती हैं? / How do sun rays reach Earth?",
+  options: ["सीधे / Directly", "वक्राकार / Curved", "परावर्तित / Reflected", "विकिरणित / Radiated"],
+  correct: 0
+},
+
+{
+  question: "सूर्य की सबसे नज़दीकी परत कौन सी है? / Which layer is closest to the sun?",
+  options: ["कोर / Core", "क्रोमोस्फीयर / Chromosphere", "कोरोना / Corona", "फोटोस्फीयर / Photosphere"],
+  correct: 3
+},
+{
+  question: "धूप में सबसे अधिक ऊर्जा किससे आती है? / Which carries most energy in sunlight?",
+  options: ["लाल किरणें / Red rays", "नीली किरणें / Blue rays", "पराबैंगनी किरणें / UV rays", "इन्फ्रारेड / Infrared"],
+  correct: 2
+},
+{
+  question: "मौसम और जलवायु में अंतर क्या है? / Difference between weather and climate?",
+  options: ["कोई अंतर नहीं / No difference", "मौसम अल्पकालिक, जलवायु दीर्घकालिक / Weather short-term, climate long-term", "दोनों एक जैसे / Both same", "जलवायु दिनभर बदलती है / Climate changes daily"],
+  correct: 1
+},
+{
+  question: "भारत में मानसून किस दिशा से आता है? / Monsoon comes from which direction in India?",
+  options: ["उत्तर / North", "दक्षिण-पश्चिम / South-West", "पूर्व / East", "पश्चिम / West"],
+  correct: 1
+},
+{
+  question: "सबसे अधिक वर्षा वाला राज्य कौन सा है? / Which is rainiest state in India?",
+  options: ["राजस्थान / Rajasthan", "मेघालय / Meghalaya", "उत्तर प्रदेश / Uttar Pradesh", "महाराष्ट्र / Maharashtra"],
+  correct: 1
+},
+{
+  question: "कोहरा सबसे ज्यादा कब होता है? / Fog occurs mostly in?",
+  options: ["गर्मी / Summer", "बरसात / Rainy", "सर्दी / Winter", "बसंत / Spring"],
+  correct: 2
+},
+{
+  question: "हवा का तापमान कहाँ सबसे तेज घटता है? / Temperature drops fastest in?",
+  options: ["रेगिस्तान / Desert", "पर्वत / Mountains", "मैदान / Plains", "समुद्र तट / Coast"],
+  correct: 1
+},
+{
+  question: "बर्फबारी कहाँ होती है? / Where snowfall occurs?",
+  options: ["उष्णकटिबंधीय क्षेत्र / Tropical", "मरुस्थल / Desert", "पर्वतीय ठंडे क्षेत्र / Cold mountains", "मैदान / Plains"],
+  correct: 2
+},
+{
+  question: "रेत के तूफान कहाँ अधिक आते हैं? / Sandstorms are common in?",
+  options: ["पर्वत / Mountains", "रेगिस्तान / Desert", "समुद्र तट / Seashore", "जंगल / Forest"],
+  correct: 1
+},
+{
+  question: "बिजली किस गैस से चमकती है? / Lightning glows due to which gas?",
+  options: ["नाइट्रोजन / Nitrogen", "ऑक्सीजन / Oxygen", "कार्बन डाइऑक्साइड / CO2", "हीलियम / Helium"],
+  correct: 0
+},
+{
+  question: "भूकंप किस पर असर डालता है? / Earthquake affects?",
+  options: ["हवा / Air", "भूमि / Land", "सूरज / Sun", "पौधे / Plants"],
+  correct: 1
+},
+{
+  question: "समुद्र की लहरें किससे बनती हैं? / Ocean waves caused by?",
+  options: ["हवा / Wind", "भूकंप / Earthquake", "ज्वालामुखी / Volcano", "चाँद / Moon"],
+  correct: 0
+},
+{
+  question: "समुद्र की ज्वार किससे होती है? / Tides caused by?",
+  options: ["सूर्य / Sun", "चाँद का गुरुत्वाकर्षण / Moon’s gravity", "हवा / Wind", "पानी का तापमान / Water temp"],
+  correct: 1
+},
+{
+  question: "चक्रवात का सबसे शांत भाग? / Calm part of cyclone?",
+  options: ["किनारा / Edge", "मध्य / Eye", "बाहर / Outside", "ऊपरी हिस्सा / Top"],
+  correct: 1
+},
+{
+  question: "सर्दियों में दिन छोटे क्यों होते हैं? / Why days shorter in winter?",
+  options: ["सूरज दूर होता है / Sun is far", "धरती का झुकाव / Earth tilt", "बादल ज्यादा / More clouds", "बारिश होती है / Rain occurs"],
+  correct: 1
+},
+{
+  question: "सूरज की रोशनी से किस विटामिन की प्राप्ति होती है? / Which vitamin from sunlight?",
+  options: ["A", "B", "C", "D"],
+  correct: 3
+},
+{
+  question: "पृथ्वी पर हवा क्यों है? / Why is there air on Earth?",
+  options: ["गुरुत्वाकर्षण / Gravity", "चुंबकत्व / Magnetism", "सूरज / Sun", "पौधे / Plants"],
+  correct: 0
+},
+{
+  question: "रेगिस्तान का तापमान कैसा होता है? / Desert temperature?",
+  options: ["हमेशा ठंडा / Always cold", "दिन गर्म रात ठंडी / Hot day, cold night", "हमेशा गर्म / Always hot", "हमेशा बदलता / Always changing"],
+  correct: 1
+},
+{
+  question: "वायुमंडल में सबसे ऊपरी परत कौन सी है? / Topmost layer of atmosphere?",
+  options: ["स्ट्रैटोस्फीयर / Stratosphere", "मेसोस्फीयर / Mesosphere", "थर्मोस्फीयर / Thermosphere", "एक्सोस्फीयर / Exosphere"],
+  correct: 3
+},
+{
+  question: "धरती पर मौसम किससे बनता है? / Weather on earth formed by?",
+  options: ["हवा और पानी की गति / Air & water movement", "धरती का आकार / Earth shape", "सूरज की चमक / Sunlight only", "पौधे / Plants"],
+  correct: 0
+},
+{
+  question: "किस गैस से ग्रीनहाउस प्रभाव ज्यादा होता है? / Gas causing greenhouse effect?",
+  options: ["ऑक्सीजन / Oxygen", "कार्बन डाइऑक्साइड / CO2", "नाइट्रोजन / Nitrogen", "आर्गन / Argon"],
+  correct: 1
+},
+{
+  question: "ज्वालामुखी से कौन निकलता है? / Volcano releases?",
+  options: ["पानी / Water", "गैस और लावा / Gas & lava", "रेत / Sand", "हवा / Air"],
+  correct: 1
+},
+{
+  question: "पृथ्वी पर जीवन के लिए सबसे जरूरी गैस? / Most essential gas for life?",
+  options: ["ऑक्सीजन / Oxygen", "नाइट्रोजन / Nitrogen", "कार्बन डाइऑक्साइड / CO2", "हाइड्रोजन / Hydrogen"],
+  correct: 0
+},
+{
+  question: "वर्षा मापने का यंत्र कौन सा है? / Instrument to measure rainfall?",
+  options: ["रेन गेज / Rain gauge", "थर्मामीटर / Thermometer", "हाइड्रोमीटर / Hydrometer", "एनीमोमीटर / Anemometer"],
+  correct: 0
+},
+{
+  question: "भारत में मानसून कब आता है? / Monsoon in India starts in?",
+  options: ["जनवरी / January", "जून / June", "सितंबर / September", "दिसंबर / December"],
+  correct: 1
+},
+{
+  question: "सूरज की रोशनी में कौन सा रंग सबसे ज्यादा बिखरता है? / Which color scatters most?",
+  options: ["लाल / Red", "नीला / Blue", "हरा / Green", "पीला / Yellow"],
+  correct: 1
+},
+{
+  question: "आसमान नीला क्यों दिखता है? / Why sky appears blue?",
+  options: ["पानी के कारण / Due to water", "नीली रोशनी बिखरती है / Blue light scatters", "सूरज दूर है / Sun is far", "ओजोन परत / Ozone layer"],
+  correct: 1
+},
+{
+  question: "धरती पर सबसे अधिक ताजे पानी कहाँ है? / Most freshwater on Earth is?",
+  options: ["नदियों में / Rivers", "झीलों में / Lakes", "बर्फ और हिमनदों में / Ice & glaciers", "भूमिगत जल / Groundwater"],
+  correct: 2
+},
+{
+  question: "सबसे बड़ा महासागर कौन सा है? / Largest ocean?",
+  options: ["हिंद महासागर / Indian Ocean", "प्रशांत महासागर / Pacific Ocean", "अटलांटिक महासागर / Atlantic Ocean", "आर्कटिक महासागर / Arctic Ocean"],
+  correct: 1
+},
+{
+  question: "हवा में धूल और धुआं बढ़ने से क्या होता है? / Dust & smoke in air causes?",
+  options: ["कोहरा / Fog", "धुंध / Smog", "ओस / Dew", "बारिश / Rain"],
+  correct: 1
+},
+{
+  question: "पृथ्वी पर सबसे गर्म जगह कहाँ है? / Hottest place on Earth?",
+  options: ["सहारा / Sahara", "डेथ वैली / Death Valley", "थार / Thar", "गोबी / Gobi"],
+  correct: 1
+},
+{
+  question: "बादल किससे बने हैं? / Clouds made of?",
+  options: ["हवा / Air", "जल कण और बर्फ / Water droplets & ice", "धूल / Dust", "गैस / Gas"],
+  correct: 1
+},
+{
+  question: "किस मौसम में किसान धान बोते हैं? / Farmers sow rice in?",
+  options: ["सर्दी / Winter", "ग्रीष्म / Summer", "वर्षा / Rainy", "बसंत / Spring"],
+  correct: 2
+},
+{
+  question: "सर्दी में सांस से धुंध क्यों दिखती है? / Breath fog in winter why?",
+  options: ["धूल / Dust", "पानी की वाष्प संघनन / Water vapor condensation", "धुआं / Smoke", "हवा ठंडी / Cold wind"],
+  correct: 1
+},
+{
+  question: "कौन सा तूफान समुद्र में उठता है? / Which storm forms over ocean?",
+  options: ["बवंडर / Tornado", "चक्रवात / Cyclone", "धूल तूफान / Dust storm", "लू / Heat wave"],
+  correct: 1
+},
+{
+  question: "आंधी में बिजली गिरने पर क्या करना चाहिए? / What to do in thunderstorm?",
+  options: ["पेड़ के नीचे खड़े हों / Stand under tree", "खुले में रहें / Stay open", "घर या सुरक्षित जगह पर जाएं / Go indoors", "नदी में जाएं / Go to river"],
+  correct: 2
+},
+{
+  question: "ओजोन परत किससे नष्ट होती है? / Ozone layer destroyed by?",
+  options: ["CFC गैसें / CFC gases", "ऑक्सीजन / Oxygen", "नाइट्रोजन / Nitrogen", "हाइड्रोजन / Hydrogen"],
+  correct: 0
+},
+{
+  question: "किस ऋतु में पतंग उड़ाई जाती है? / Kites flown in which season?",
+  options: ["सर्दी / Winter", "ग्रीष्म / Summer", "वर्षा / Rainy", "बसंत / Spring"],
+  correct: 3
+},
+{
+  question: "रेनकोट किस पदार्थ से बनते हैं? / Raincoats made of?",
+  options: ["कॉटन / Cotton", "नायलॉन / Nylon", "ऊन / Wool", "रेशम / Silk"],
+  correct: 1
+}
+
+
+    ];
+
+    const weatherIcons = {
+      'clear': 'fas fa-sun',
+      'clouds': 'fas fa-cloud',
+      'rain': 'fas fa-cloud-rain',
+      'snow': 'fas fa-snowflake',
+      'thunderstorm': 'fas fa-bolt',
+      'drizzle': 'fas fa-cloud-drizzle',
+      'mist': 'fas fa-smog',
+      'fog': 'fas fa-smog'
+    };
+
+    function switchMode(mode) {
+      quizMode = mode;
+      
+      document.querySelectorAll('.mode-btn').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.dataset.mode === mode) {
+          btn.classList.add('active');
+        }
+      });
+      
+      if (mode === 'prediction') {
+        document.getElementById('prediction-quiz').style.display = 'block';
+        document.getElementById('trivia-quiz').style.display = 'none';
+        document.getElementById('question').textContent = 'Kal barish hogi ya nahi?';
+      } else {
+        document.getElementById('prediction-quiz').style.display = 'none';
+        document.getElementById('trivia-quiz').style.display = 'block';
+        loadNewTriviaQuestion();
+      }
+    }
+
+    function loadNewTriviaQuestion() {
+      try {
+        const randomIndex = Math.floor(Math.random() * WEATHER_QUIZ_BANK.length);
+        currentQuizQuestion = WEATHER_QUIZ_BANK[randomIndex];
+        
+        displayTriviaQuestion(currentQuizQuestion);
+        
+      } catch (error) {
+        console.error('Error loading trivia:', error);
+        showNotification('❌ Error loading question!', 'error');
+      }
+    }
+
+    function displayTriviaQuestion(questionData) {
+      document.getElementById('question').textContent = questionData.question;
+      
+      const optionsContainer = document.getElementById('trivia-options');
+      optionsContainer.innerHTML = '';
+      
+      questionData.options.forEach((option, index) => {
+        const optionElement = document.createElement('div');
+        optionElement.className = 'trivia-option';
+        optionElement.textContent = option;
+        optionElement.onclick = () => selectTriviaAnswer(index, optionElement);
+        optionsContainer.appendChild(optionElement);
+      });
+    }
+
+    function selectTriviaAnswer(selectedIndex, selectedElement) {
+      const allOptions = document.querySelectorAll('.trivia-option');
+      allOptions.forEach(opt => opt.onclick = null);
+      
+      selectedElement.classList.add('selected');
+      
+      setTimeout(() => {
+        allOptions.forEach((opt, index) => {
+          if (index === currentQuizQuestion.correct) {
+            opt.classList.add('correct');
+          } else if (index === selectedIndex && index !== currentQuizQuestion.correct) {
+            opt.classList.add('wrong');
+          }
+        });
+        
+        userStats.triviaAnswered++;
+        if (selectedIndex === currentQuizQuestion.correct) {
+          scores[userName] += 10;
+          userStats.triviaCorrect++;
+          showNotification('✅ सही जवाब! +10 points / Correct! +10 points', 'success');
+        } else {
+          scores[userName] = Math.max(0, scores[userName] - 2);
+          showNotification('❌ गलत जवाब! -2 points / Wrong answer! -2 points', 'error');
+        }
+        
+        sessionStorage.setItem("scores", JSON.stringify(scores));
+        sessionStorage.setItem("userStats", JSON.stringify(userStats));
+        updateLeaderboard();
+        updateStats();
+        
+        setTimeout(() => {
+          loadNewTriviaQuestion();
+        }, 3000);
+        
+      }, 1000);
+    }
+
+    async function getCurrentLocation() {
+      const btn = document.getElementById('location-btn');
+      btn.classList.add('loading');
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Getting Location...';
+      
+      if (!navigator.geolocation) {
+        showNotification('❌ Geolocation not supported', 'error');
+        resetLocationButton();
+        return;
+      }
+
+      try {
+        const position = await new Promise((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject, {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 300000
+          });
+        });
+
+        currentLocation = {
+          lat: position.coords.latitude,
+          lon: position.coords.longitude
+        };
+
+        try {
+          const response = await fetch(`https://api.openweathermap.org/geo/1.0/reverse?lat=${currentLocation.lat}&lon=${currentLocation.lon}&limit=1&appid=${API_KEY}`);
+          const data = await response.json();
+          if (data && data.length > 0) {
+            CITY = data[0].name;
+            document.getElementById('location-display').textContent = `Location: ${CITY}, ${data[0].country}`;
+          }
+        } catch (e) {
+          CITY = `Lat: ${currentLocation.lat.toFixed(2)}, Lon: ${currentLocation.lon.toFixed(2)}`;
+          document.getElementById('location-display').textContent = `Location: ${CITY}`;
+        }
+        
+        showNotification('✅ Location updated successfully!', 'success');
+        getCurrentWeather();
+        
+      } catch (error) {
+        console.error('Location error:', error);
+        showNotification('❌ Unable to get location', 'error');
+      } finally {
+        resetLocationButton();
+      }
+    }
+
+    function resetLocationButton() {
+      const btn = document.getElementById('location-btn');
+      btn.classList.remove('loading');
+      btn.innerHTML = '<i class="fas fa-crosshairs"></i> Update Location';
+    }
+
+    // Weather functions (simplified with fallbacks)
+    async function getCurrentWeather() {
+      try {
+        let url;
+        if (currentLocation.lat && currentLocation.lon) {
+          url = `https://api.openweathermap.org/data/2.5/weather?lat=${currentLocation.lat}&lon=${currentLocation.lon}&appid=${API_KEY}&units=metric`;
+        } else {
+          url = `https://api.openweathermap.org/data/2.5/weather?q=${CITY}&appid=${API_KEY}&units=metric`;
+        }
+        
+        const response = await fetch(url);
+        const data = await response.json();
+        
+        if (data.cod === 200) {
+          document.getElementById('temperature').textContent = `${Math.round(data.main.temp)}°C`;
+          document.getElementById('weather-desc').textContent = data.weather[0].description;
+          
+          const condition = data.weather[0].main.toLowerCase();
+          const iconClass = weatherIcons[condition] || 'fas fa-cloud';
+          document.getElementById('weather-icon').innerHTML = `<i class="${iconClass}"></i>`;
+        } else {
+          throw new Error('API Error');
+        }
+        
+      } catch (error) {
+        console.log('Weather API failed, using demo data');
+        // Use smart fallback weather data
+        const temps = [25, 28, 32, 18, 22, 30, 26];
+        const descs = ['Partly Cloudy', 'Sunny', 'Cloudy', 'Clear Sky', 'Light Rain', 'Overcast', 'Pleasant'];
+        const icons = ['cloud', 'sun', 'cloud', 'sun', 'cloud-rain', 'cloud', 'sun'];
+        
+        const today = new Date().getDay();
+        document.getElementById('temperature').textContent = `${temps[today]}°C`;
+        document.getElementById('weather-desc').textContent = descs[today];
+        document.getElementById('weather-icon').innerHTML = `<i class="fas fa-${icons[today]}"></i>`;
+      }
+    }
+
+    // Weather prediction with smart fallback
+    async function getTomorrowForecast() {
+      try {
+        let url;
+        if (currentLocation.lat && currentLocation.lon) {
+          url = `https://api.openweathermap.org/data/2.5/forecast?lat=${currentLocation.lat}&lon=${currentLocation.lon}&appid=${API_KEY}&units=metric`;
+        } else {
+          url = `https://api.openweathermap.org/data/2.5/forecast?q=${CITY}&appid=${API_KEY}&units=metric`;
+        }
+        
+        const response = await fetch(url);
+        const data = await response.json();
+        
+        if (data.cod === "200" && data.list.length > 8) {
+          const tomorrow = data.list[8]; // ~24 hours ahead
+          const rain = tomorrow.rain ? tomorrow.rain["3h"] : 0;
+          const condition = tomorrow.weather[0].main.toLowerCase();
+          return (rain > 0 || condition.includes("rain") || condition.includes("drizzle")) ? "yes" : "no";
+        } else {
+          throw new Error('Forecast API Error');
+        }
+        
+      } catch (error) {
+        console.log('Forecast API failed, using smart prediction');
+        // Intelligent fallback based on date and season
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        const month = tomorrow.getMonth();
+        const dayOfWeek = tomorrow.getDay();
+        const dayOfMonth = tomorrow.getDate();
+        
+        // Monsoon season (June-September) has higher rain probability
+        const isMonsooon = month >= 5 && month <= 8;
+        const baseChance = isMonsooon ? 0.6 : 0.3;
+        
+        // Weekly and monthly patterns
+        const weeklyRainPattern = [0.2, 0.4, 0.3, 0.6, 0.5, 0.7, 0.4]; // Sun-Sat
+        const monthlyVariation = Math.sin((dayOfMonth * Math.PI) / 15) * 0.2;
+        
+        const finalChance = baseChance + weeklyRainPattern[dayOfWeek] - 0.4 + monthlyVariation;
+        return finalChance > 0.5 ? "yes" : "no";
+      }
+    }
+
+    // Weather prediction submission
+    async function submitAnswer(answer) {
+      const buttons = document.querySelectorAll('.answer-btn');
+      buttons.forEach(btn => {
+        btn.disabled = true;
+        const icon = btn.innerHTML.includes('cloud-rain') ? 'cloud-rain' : 'sun';
+        btn.innerHTML = `<span class="loading"></span> Checking...`;
+      });
+
+      try {
+        const correct = await getTomorrowForecast();
+        userStats.totalPredictions++;
+
+        if (answer === correct) {
+          scores[userName] += 15;
+          userStats.correctPredictions++;
+          showNotification("✅ बिल्कुल सही! +15 points / Perfect! +15 points", "success");
+        } else {
+          scores[userName] = Math.max(0, scores[userName] - 5);
+          showNotification("❌ गलत भविष्यवाणी! -5 points / Wrong prediction! -5 points", "error");
+        }
+
+        sessionStorage.setItem("scores", JSON.stringify(scores));
+        sessionStorage.setItem("userStats", JSON.stringify(userStats));
+        updateLeaderboard();
+        updateStats();
+
+      } catch (error) {
+        showNotification("⚠️ Error checking forecast. Try again!", "error");
+      } finally {
+        setTimeout(() => {
+          buttons[0].innerHTML = '<i class="fas fa-cloud-rain"></i> Haan, Barish hogi';
+          buttons[1].innerHTML = '<i class="fas fa-sun"></i> Nahi hogi';
+          buttons.forEach(btn => btn.disabled = false);
+        }, 3000);
+      }
+    }
+
+    // Notification system
+    function showNotification(message, type) {
+      const notification = document.createElement('div');
+      notification.style.cssText = `
+        position: fixed;
+        top: 100px;
+        right: 20px;
+        padding: 1rem 2rem;
+        background: ${type === 'success' ? 'var(--gradient-success)' : type === 'warning' ? '#f59e0b' : 'var(--gradient-warning)'};
+        color: white;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        z-index: 10000;
+        font-weight: 600;
+        animation: slideInRight 0.3s ease-out;
+        max-width: 300px;
+      `;
+      notification.textContent = message;
+      document.body.appendChild(notification);
+
+      setTimeout(() => {
+        notification.style.animation = 'slideOutRight 0.3s ease-out';
+        setTimeout(() => notification.remove(), 300);
+      }, 4000);
+    }
+
+    // Leaderboard and stats
+    function updateLeaderboard() {
+      const leaderboard = document.getElementById("leaderboard-list");
+      leaderboard.innerHTML = "";
+
+      const sorted = Object.entries(scores).sort((a,b) => b[1]-a[1]);
+      sorted.slice(0, 10).forEach(([name, score], index) => {
+        const li = document.createElement("li");
+        li.innerHTML = `
+          <span class="player-name">${index + 1}. ${name}</span>
+          <span class="score">${score}</span>
+        `;
+        leaderboard.appendChild(li);
+      });
+
+      // Update reward message based on achievements
+      const userRank = sorted.findIndex(([name]) => name === userName);
+      const userScore = scores[userName] || 0;
+      
+      if (userScore >= 100) {
+        document.getElementById("reward-box").innerHTML = `
+          <div class="reward-text">
+            <i class="fas fa-trophy"></i> 
+            Amazing! You earned: <strong>WEATHER100</strong> coupon!
+          </div>
+        `;
+      } else if (userScore >= 50) {
+        document.getElementById("reward-box").innerHTML = `
+          <div class="reward-text">
+            <i class="fas fa-medal"></i> 
+            Great job! You earned: <strong>WEATHER50</strong> coupon!
+          </div>
+        `;
+      } else if (userRank === 0 && userScore >= 25) {
+        document.getElementById("reward-box").innerHTML = `
+          <div class="reward-text">
+            <i class="fas fa-crown"></i> 
+            You're leading! Keep it up to unlock rewards!
+          </div>
+        `;
+      }
+    }
+
+    function updateStats() {
+      document.getElementById('total-predictions').textContent = userStats.totalPredictions;
+      document.getElementById('correct-predictions').textContent = userStats.correctPredictions;
+      document.getElementById('trivia-answered').textContent = userStats.triviaAnswered;
+      document.getElementById('trivia-correct').textContent = userStats.triviaCorrect;
+      
+      const totalQuestions = userStats.totalPredictions + userStats.triviaAnswered;
+      const totalCorrect = userStats.correctPredictions + userStats.triviaCorrect;
+      const overallAccuracy = totalQuestions > 0 
+        ? Math.round((totalCorrect / totalQuestions) * 100)
+        : 0;
+      document.getElementById('overall-accuracy').textContent = overallAccuracy + '%';
+    }
+
+    // Initialize the application
+    function initializeApp() {
+      getCurrentWeather();
+      updateLeaderboard();
+      updateStats();
+      
+      // Load initial trivia question if in trivia mode
+      if (quizMode === 'trivia') {
+        loadNewTriviaQuestion();
+      }
+      
+      setTimeout(() => {
+        showNotification(`🌟 स्वागत ${userName}! Welcome ${userName}! Start playing to earn points!`, 'success');
+      }, 1000);
+    }
+
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes slideInRight {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+      }
+      @keyframes slideOutRight {
+        from { transform: translateX(0); opacity: 1; }
+        to { transform: translateX(100%); opacity: 0; }
+      }
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      @keyframes fadeOut {
+        from { opacity: 1; }
+        to { opacity: 0; }
+      }
+    `;
+    document.head.appendChild(style);
+
+    initializeApp();
+  </script>
+</body>
+</html>

@@ -1,0 +1,1730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Advanced AI Weather Platform</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --secondary: #1e40af;
+            --accent: #3b82f6;
+            --dark: #f8fafc;
+            --darker: #e2e8f0;
+            --light: #ffffff;
+            --text-dark: #1e293b;
+            --text-light: #64748b;
+            --warning: #dc2626;
+            --success: #059669;
+            --border: #e2e8f0;
+            --gradient-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --glass: rgba(255, 255, 255, 0.9);
+            --glass-border: rgba(37, 99, 235, 0.2);
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            --shadow-hover: 0 8px 30px rgba(37, 99, 235, 0.2);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #cbd5e1 100%);
+            color: var(--text-dark);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .bg-animation::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 20% 80%, rgba(37, 99, 235, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 20%, rgba(59, 130, 246, 0.08) 0%, transparent 50%);
+            animation: bgFloat 20s ease-in-out infinite;
+        }
+
+        @keyframes bgFloat {
+            0%, 100% { transform: translate(-50%, -50%) rotate(0deg); }
+            50% { transform: translate(-50%, -50%) rotate(180deg); }
+        }
+
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border-bottom: 2px solid var(--border);
+            padding: 1rem 0;
+            box-shadow: var(--shadow);
+        }
+
+        .header-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .logo i {
+            font-size: 2rem;
+            color: var(--primary);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .toolbar {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        input[type="text"] {
+            background: var(--light);
+            border: 2px solid var(--border);
+            color: var(--text-dark);
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            border-radius: 12px;
+            outline: none;
+            width: 250px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        input[type="text"]::placeholder {
+            color: var(--text-light);
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 0.75rem;
+            color: var(--primary);
+        }
+
+        button {
+            background: var(--light);
+            border: 2px solid var(--border);
+            color: var(--text-dark);
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+        }
+
+        button:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        button.primary {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        button.primary:hover {
+            background: var(--secondary);
+            transform: translateY(-2px) scale(1.05);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 450px;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        @media (max-width: 1200px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .glass-card {
+            background: var(--light);
+            border: 2px solid var(--border);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            margin-bottom: 2rem;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-hover);
+            border-color: var(--glass-border);
+        }
+
+        .card-title {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--text-dark);
+        }
+
+        .card-title i {
+            color: var(--primary);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--dark);
+            border: 2px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            background: var(--light);
+            border-color: var(--primary);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--text-light);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .alert {
+            background: var(--light);
+            border-left: 4px solid;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+            animation: slideIn 0.5s ease-out;
+            box-shadow: var(--shadow);
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(-100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .alert.high {
+            border-color: #dc2626;
+            background: linear-gradient(135deg, #fef2f2 0%, #ffffff 100%);
+        }
+
+        .alert.medium {
+            border-color: #f59e0b;
+            background: linear-gradient(135deg, #fffbeb 0%, #ffffff 100%);
+        }
+
+        .alert.low {
+            border-color: #059669;
+            background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%);
+        }
+
+        .alert-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .alert-severity {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+            font-size: 0.875rem;
+            font-weight: 700;
+        }
+
+        .alert-severity.high {
+            background: rgba(220, 38, 38, 0.1);
+            color: #dc2626;
+        }
+
+        .alert-severity.medium {
+            background: rgba(245, 158, 11, 0.1);
+            color: #f59e0b;
+        }
+
+        .alert-severity.low {
+            background: rgba(5, 150, 105, 0.1);
+            color: #059669;
+        }
+
+        .severity-bar {
+            height: 8px;
+            background: var(--border);
+            border-radius: 999px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+
+        .severity-fill {
+            height: 100%;
+            border-radius: 999px;
+            transition: width 1s ease-out;
+        }
+
+        .weather-slots {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .weather-slot {
+            background: var(--dark);
+            border: 2px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .weather-slot:hover {
+            background: var(--light);
+            border-color: var(--primary);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .slot-time {
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .slot-temp {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--text-dark);
+        }
+
+        .slot-desc {
+            font-size: 0.875rem;
+            color: var(--text-light);
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .risk-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .blog-container {
+            height: calc(100vh - 200px);
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary) var(--border);
+            padding-right: 0.5rem;
+        }
+
+        .blog-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .blog-container::-webkit-scrollbar-track {
+            background: var(--border);
+            border-radius: 4px;
+        }
+
+        .blog-container::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 4px;
+        }
+
+        .blog-container::-webkit-scrollbar-thumb:hover {
+            background: var(--secondary);
+        }
+
+        .blog-post {
+            background: var(--light);
+            border: 2px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+            animation: fadeIn 0.5s ease-out;
+            position: relative;
+            overflow: hidden;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .blog-post::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--gradient-bg);
+        }
+
+        .blog-post:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-hover);
+            border-color: var(--primary);
+        }
+
+        .blog-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.875rem;
+            color: var(--text-light);
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border);
+            font-weight: 600;
+        }
+
+        .blog-meta i {
+            color: var(--primary);
+            margin-right: 0.5rem;
+        }
+
+        .blog-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--text-dark);
+            line-height: 1.4;
+        }
+
+        .blog-content {
+            color: var(--text-dark);
+            line-height: 1.8;
+            font-size: 1rem;
+        }
+
+        .blog-content h3 {
+            color: var(--primary);
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .blog-content p {
+            margin-bottom: 1rem;
+        }
+
+        .blog-content strong {
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .blog-content ul {
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .blog-content li {
+            margin-bottom: 0.5rem;
+            color: var(--text-light);
+        }
+
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem;
+            color: var(--text-light);
+            background: var(--dark);
+            border-radius: 16px;
+            border: 2px dashed var(--border);
+            text-align: center;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .loading i {
+            font-size: 2rem;
+            color: var(--primary);
+        }
+
+        .spinner {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .notification {
+            position: fixed;
+            top: 100px;
+            right: 2rem;
+            background: var(--light);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            box-shadow: var(--shadow-hover);
+            z-index: 9999;
+            animation: slideInRight 0.3s ease-out;
+            min-width: 300px;
+        }
+
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .notification.success {
+            border-left: 4px solid #059669;
+            background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%);
+        }
+
+        .notification.error {
+            border-left: 4px solid #dc2626;
+            background: linear-gradient(135deg, #fef2f2 0%, #ffffff 100%);
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--text-light);
+            font-weight: 600;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #059669;
+            animation: blink 2s ease-in-out infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.3; }
+        }
+
+        .ai-insights {
+            background: var(--gradient-bg);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+            color: white;
+        }
+
+        .ai-insights::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: aiPulse 4s ease-in-out infinite;
+        }
+
+        @keyframes aiPulse {
+            0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.5; }
+            50% { transform: scale(1.1) rotate(180deg); opacity: 0.8; }
+        }
+
+        .ai-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .ai-content {
+            position: relative;
+            z-index: 1;
+            line-height: 1.8;
+            font-size: 1.05rem;
+        }
+
+        .blog-controls {
+            background: var(--light);
+            border: 2px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .blog-stats {
+            display: flex;
+            gap: 2rem;
+            font-size: 0.875rem;
+            color: var(--text-light);
+            font-weight: 600;
+        }
+
+        .blog-stats span {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .blog-stats i {
+            color: var(--primary);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-light);
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            opacity: 0.6;
+        }
+
+        .empty-state h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--text-dark);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .header-container {
+                padding: 0 1rem;
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .toolbar {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            input[type="text"] {
+                width: 200px;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .weather-slots {
+                grid-template-columns: 1fr;
+            }
+
+            .main-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .blog-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation"></div>
+    
+    <header>
+        <div class="header-container">
+            <div class="logo">
+                <i class="fas fa-brain"></i>
+                Advanced AI Weather Platform
+            </div>
+            <div class="toolbar">
+                <div class="search-container">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="cityInput" placeholder="Enter city name..." />
+                </div>
+                <button id="geoBtn">
+                    <i class="fas fa-location-dot"></i>
+                    Location
+                </button>
+                <button id="scanBtn" class="primary">
+                    <i class="fas fa-radar"></i>
+                    Scan Alerts
+                </button>
+                <button id="ttsBtn">
+                    <i class="fas fa-volume-up"></i>
+                    Audio
+                </button>
+                <button id="blogBtn">
+                    <i class="fas fa-pen-fancy"></i>
+                    Generate Blog
+                </button>
+                <button id="exportBtn">
+                    <i class="fas fa-download"></i>
+                    Export
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="main-grid">
+            <div class="weather-section">
+                <div class="glass-card">
+                    <div class="card-title">
+                        <i class="fas fa-gauge-high"></i>
+                        Live Weather Status
+                        <div class="status-indicator" style="margin-left: auto; font-size: 0.875rem;">
+                            <div class="status-dot"></div>
+                            <span id="lastUpdate">Ready to scan</span>
+                        </div>
+                    </div>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-label">Location</div>
+                            <div class="stat-value" id="currentLocation">--</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Temperature</div>
+                            <div class="stat-value" id="currentTemp">--</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Condition</div>
+                            <div class="stat-value" id="currentCondition">--</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">24h Rain</div>
+                            <div class="stat-value" id="rainForecast">--</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ai-insights">
+                    <div class="ai-header">
+                        <i class="fas fa-robot" style="font-size: 2rem;"></i>
+                        <h3 style="font-size: 1.5rem; font-weight: 700;">AI Weather Intelligence</h3>
+                    </div>
+                    <div class="ai-content" id="aiInsights">
+                        Advanced AI is ready to analyze weather patterns and provide intelligent recommendations based on real-time data.
+                    </div>
+                </div>
+
+                <div class="glass-card">
+                    <div class="card-title">
+                        <i class="fas fa-triangle-exclamation"></i>
+                        Smart Alert System
+                    </div>
+                    <div id="alertContainer">
+                        <div class="loading">
+                            <i class="fas fa-cloud-sun"></i>
+                            <div>Click "Scan Alerts" to analyze current weather conditions</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card">
+                    <div class="card-title">
+                        <i class="fas fa-clock"></i>
+                        24-Hour Detailed Forecast
+                    </div>
+                    <div id="forecastSlots" class="weather-slots">
+                        <div class="loading">
+                            <i class="fas fa-spinner spinner"></i>
+                            <div>Waiting for weather data...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="blog-section">
+                <div class="glass-card" style="margin-bottom: 0;">
+                    <div class="card-title">
+                        <i class="fas fa-newspaper"></i>
+                        AI-Powered Weather Blog
+                    </div>
+                    
+                    <div class="blog-controls">
+                        <div class="blog-stats">
+                            <span><i class="fas fa-file-alt"></i><span id="blogCount">0</span> Posts</span>
+                            <span><i class="fas fa-clock"></i>Last: <span id="lastGenerated">Never</span></span>
+                        </div>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <button id="clearBlogsBtn" style="font-size: 0.875rem; padding: 0.5rem 1rem;">
+                                <i class="fas fa-trash"></i>
+                                Clear All
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="blog-container" id="blogContainer">
+                        <div class="empty-state">
+                            <i class="fas fa-feather-alt"></i>
+                            <h3>No Blog Posts Yet</h3>
+                            <p>Generate your first AI-powered weather blog post by clicking the "Generate Blog" button after scanning weather data.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const CONFIG = {
+        
+        };
+
+        class WeatherState {
+            constructor() {
+                this.currentData = null;
+                this.alerts = [];
+                this.blogPosts = this.loadBlogPosts();
+                this.lastUpdate = null;
+                this.isLoading = false;
+                this.autoUpdateInterval = null;
+            }
+
+            loadBlogPosts() {
+                try {
+                    const saved = JSON.parse(localStorage.getItem(CONFIG.STORAGE_KEY + '_blogs') || '[]');
+                    return Array.isArray(saved) ? saved : [];
+                } catch {
+                    return [];
+                }
+            }
+
+            saveBlogPosts() {
+                try {
+                    localStorage.setItem(CONFIG.STORAGE_KEY + '_blogs', JSON.stringify(this.blogPosts));
+                } catch (e) {
+                    console.error('Failed to save blog posts:', e);
+                }
+            }
+
+            addBlogPost(post) {
+                this.blogPosts.unshift(post);
+                this.saveBlogPosts();
+            }
+
+            clearBlogPosts() {
+                this.blogPosts = [];
+                this.saveBlogPosts();
+            }
+
+            setCurrentData(data) {
+                this.currentData = data;
+                this.lastUpdate = new Date();
+            }
+        }
+
+        const state = new WeatherState();
+        const elements = {
+            cityInput: document.getElementById('cityInput'),
+            geoBtn: document.getElementById('geoBtn'),
+            scanBtn: document.getElementById('scanBtn'),
+            ttsBtn: document.getElementById('ttsBtn'),
+            blogBtn: document.getElementById('blogBtn'),
+            exportBtn: document.getElementById('exportBtn'),
+            clearBlogsBtn: document.getElementById('clearBlogsBtn'),
+            currentLocation: document.getElementById('currentLocation'),
+            currentTemp: document.getElementById('currentTemp'),
+            currentCondition: document.getElementById('currentCondition'),
+            rainForecast: document.getElementById('rainForecast'),
+            alertContainer: document.getElementById('alertContainer'),
+            forecastSlots: document.getElementById('forecastSlots'),
+            blogContainer: document.getElementById('blogContainer'),
+            lastUpdate: document.getElementById('lastUpdate'),
+            aiInsights: document.getElementById('aiInsights'),
+            blogCount: document.getElementById('blogCount'),
+            lastGenerated: document.getElementById('lastGenerated')
+        };
+
+        class WeatherAPI {
+            static async fetchByCity(city) {
+                const url = `https://api.openweathermap.org/data/2.5/forecast?q=${encodeURIComponent(city)}&appid=${CONFIG.OPENWEATHER_API}&units=metric`;
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('City not found or API error');
+                return response.json();
+            }
+
+            static async fetchByCoords(lat, lon) {
+                const url = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${CONFIG.OPENWEATHER_API}&units=metric`;
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('Location error');
+                return response.json();
+            }
+        }
+
+        class WeatherAnalyzer {
+            static calculateHeatIndex(temp, humidity) {
+                const T = temp * 9/5 + 32;
+                const R = humidity;
+                const HI = -42.379 + 2.04901523*T + 10.14333127*R - 0.22475541*T*R - 0.00683783*T*T - 0.05481717*R*R + 0.00122874*T*T*R + 0.00085282*T*R*R - 0.00000199*T*T*R*R;
+                return (HI - 32) * 5/9; 
+            }
+
+            static calculateRainTotal(forecastList, hours = 24) {
+                const slots = Math.min(Math.ceil(hours / 3), forecastList.length);
+                return forecastList.slice(0, slots).reduce((total, slot) => {
+                    return total + (slot.rain?.['3h'] || 0);
+                }, 0);
+            }
+
+            static analyzeWindPatterns(forecastList) {
+                const winds = forecastList.slice(0, 8).map(slot => ({
+                    speed: slot.wind?.speed || 0,
+                    direction: slot.wind?.deg || 0,
+                    gusts: slot.wind?.gust || slot.wind?.speed || 0
+                }));
+                
+                return {
+                    maxSpeed: Math.max(...winds.map(w => w.speed)),
+                    maxGusts: Math.max(...winds.map(w => w.gusts)),
+                    avgSpeed: winds.reduce((sum, w) => sum + w.speed, 0) / winds.length,
+                    isGusty: winds.some(w => w.gusts > w.speed * 1.5)
+                };
+            }
+
+            static generateAlerts(data) {
+                const alerts = [];
+                const forecast24h = data.list.slice(0, 8);
+                const forecast48h = data.list.slice(0, 16);
+
+                const rain24h = this.calculateRainTotal(forecast24h, 24);
+                const rain48h = this.calculateRainTotal(forecast48h, 48);
+                const windAnalysis = this.analyzeWindPatterns(forecast24h);
+                
+                const temperatures = forecast24h.map(slot => ({
+                    actual: slot.main.temp,
+                    feels: slot.main.feels_like,
+                    humidity: slot.main.humidity
+                }));
+                
+                const maxTemp = Math.max(...temperatures.map(t => t.actual));
+                const maxFeels = Math.max(...temperatures.map(t => t.feels));
+                const avgHumidity = temperatures.reduce((sum, t) => sum + t.humidity, 0) / temperatures.length;
+
+                const conditions = forecast24h.map(slot => slot.weather[0]);
+                const hasThunderstorm = conditions.some(c => c.main.includes('Thunderstorm'));
+                const hasHeavyRain = conditions.some(c => c.description.includes('heavy'));
+                const maxPrecipProb = Math.max(...forecast24h.map(slot => slot.pop * 100));
+
+                const heatIndex = this.calculateHeatIndex(maxTemp, avgHumidity);
+                if (heatIndex >= 32 || maxTemp >= 35) {
+                    const severity = Math.min(100, Math.round((heatIndex - 30) * 5 + 40));
+                    alerts.push({
+                        type: 'heat',
+                        severity,
+                        level: severity >= 75 ? 'high' : severity >= 50 ? 'medium' : 'low',
+                        title: severity >= 75 ? 'Extreme Heat Warning' : 'Heat Advisory',
+                        message: severity >= 75 
+                            ? 'Dangerous heat conditions expected. Avoid outdoor activities during peak hours.'
+                            : 'Hot weather expected. Stay hydrated and take frequent breaks.',
+                        details: `Peak temperature: ${Math.round(maxTemp)}°C, Heat index: ${Math.round(heatIndex)}°C`,
+                        recommendations: [
+                            'Drink water frequently',
+                            'Wear light-colored, loose clothing',
+                            'Avoid outdoor activities 12-4 PM',
+                            'Use sunscreen and seek shade'
+                        ]
+                    });
+                }
+
+                if (rain24h >= 15 || rain48h >= 25 || maxPrecipProb >= 80) {
+                    const severity = Math.min(100, Math.round((rain24h / 30) * 60 + (maxPrecipProb / 100) * 40));
+                    alerts.push({
+                        type: 'rain',
+                        severity,
+                        level: severity >= 70 ? 'high' : severity >= 45 ? 'medium' : 'low',
+                        title: severity >= 70 ? 'Heavy Rain Warning' : 'Rain Advisory',
+                        message: severity >= 70
+                            ? 'Heavy rainfall may cause flooding. Avoid low-lying areas and waterlogged roads.'
+                            : 'Significant rainfall expected. Carry umbrella and plan for possible delays.',
+                        details: `Expected rainfall: ${rain24h.toFixed(1)}mm (24h), Probability: ${Math.round(maxPrecipProb)}%`,
+                        recommendations: [
+                            'Avoid flood-prone areas',
+                            'Keep emergency kit ready',
+                            'Monitor traffic conditions',
+                            'Charge electronic devices'
+                        ]
+                    });
+                }
+
+                if (windAnalysis.maxSpeed >= 12 || windAnalysis.maxGusts >= 18 || hasThunderstorm) {
+                    const severity = Math.min(100, Math.round((windAnalysis.maxSpeed / 20) * 50 + (hasThunderstorm ? 40 : 0) + 30));
+                    alerts.push({
+                        type: 'wind',
+                        severity,
+                        level: severity >= 70 ? 'high' : severity >= 45 ? 'medium' : 'low',
+                        title: hasThunderstorm ? 'Thunderstorm Warning' : 'High Wind Advisory',
+                        message: severity >= 70
+                            ? 'Severe weather with strong winds and thunderstorms expected.'
+                            : 'Windy conditions with possible thunderstorms.',
+                        details: `Max wind: ${windAnalysis.maxSpeed.toFixed(1)} m/s, Gusts: ${windAnalysis.maxGusts.toFixed(1)} m/s`,
+                        recommendations: [
+                            'Secure loose objects',
+                            'Avoid outdoor activities',
+                            'Stay away from trees and poles',
+                            'Keep devices charged'
+                        ]
+                    });
+                }
+
+                const poorVisibility = forecast24h.some(slot => (slot.visibility || 10000) < 5000);
+                if (poorVisibility) {
+                    alerts.push({
+                        type: 'visibility',
+                        severity: 55,
+                        level: 'medium',
+                        title: 'Poor Visibility Advisory',
+                        message: 'Reduced visibility expected due to weather conditions.',
+                        details: 'Visibility may drop below 5km during certain periods',
+                        recommendations: [
+                            'Drive carefully with headlights',
+                            'Maintain safe following distance',
+                            'Use fog lights if available',
+                            'Avoid unnecessary travel'
+                        ]
+                    });
+                }
+
+                if (alerts.length === 0) {
+                    alerts.push({
+                        type: 'clear',
+                        severity: 20,
+                        level: 'low',
+                        title: 'Clear Weather Conditions',
+                        message: 'No significant weather hazards expected in the next 24 hours.',
+                        details: 'Weather conditions remain stable with no major risks identified',
+                        recommendations: [
+                            'Good conditions for outdoor activities',
+                            'Regular weather precautions apply',
+                            'Stay hydrated in warm weather',
+                            'Check updates for any changes'
+                        ]
+                    });
+                }
+
+                return alerts.sort((a, b) => b.severity - a.severity);
+            }
+        }
+
+        class AIInsights {
+            static generateInsights(data, alerts) {
+                const current = data.list[0];
+                const location = `${data.city.name}, ${data.city.country}`;
+                const primaryAlert = alerts[0];
+                
+                let insights = `🤖 **AI Analysis for ${location}**\n\n`;
+                
+                insights += `**Current Conditions**: ${Math.round(current.main.temp)}°C with ${current.weather[0].description}. `;
+                
+                if (current.main.feels_like - current.main.temp > 3) {
+                    insights += `High humidity makes it feel ${Math.round(current.main.feels_like)}°C. `;
+                }
+                
+                if (primaryAlert.severity >= 70) {
+                    insights += `\n\n⚠️ **High Risk Detected**: ${primaryAlert.title}. Immediate precautions recommended.`;
+                } else if (primaryAlert.severity >= 45) {
+                    insights += `\n\n🟡 **Moderate Risk**: ${primaryAlert.title}. Monitor conditions closely.`;
+                } else {
+                    insights += `\n\n✅ **Low Risk**: Weather conditions are generally favorable.`;
+                }
+                
+                const tempTrend = this.analyzeTempTrend(data.list.slice(0, 8));
+                insights += `\n\n📈 **24h Trend**: ${tempTrend}`;
+                
+                const recommendations = this.generateSmartRecommendations(data, alerts);
+                insights += `\n\n💡 **AI Recommendations**:\n${recommendations.map(r => `• ${r}`).join('\n')}`;
+                
+                return insights;
+            }
+            
+            static analyzeTempTrend(forecast) {
+                const temps = forecast.map(slot => slot.main.temp);
+                const early = temps.slice(0, 3).reduce((a, b) => a + b, 0) / 3;
+                const later = temps.slice(-3).reduce((a, b) => a + b, 0) / 3;
+                const diff = later - early;
+                
+                if (diff > 2) return "Temperature rising significantly";
+                if (diff < -2) return "Temperature dropping significantly";
+                return "Temperature remaining relatively stable";
+            }
+            
+            static generateSmartRecommendations(data, alerts) {
+                const recommendations = [];
+                const primaryAlert = alerts[0];
+                
+                const now = new Date();
+                const hour = now.getHours();
+                
+                if (hour >= 6 && hour <= 10) {
+                    recommendations.push("Morning hours ideal for outdoor activities before heat builds up");
+                } else if (hour >= 11 && hour <= 15) {
+                    recommendations.push("Peak sun hours - seek shade and stay hydrated");
+                } else if (hour >= 16 && hour <= 19) {
+                    recommendations.push("Evening cooling begins - good time for outdoor activities");
+                }
+                
+                recommendations.push(...primaryAlert.recommendations.slice(0, 2));
+                
+                if (data.list[0].main.humidity > 70) {
+                    recommendations.push("High humidity detected - dress in breathable fabrics");
+                }
+                
+                if (data.list.some(slot => slot.pop > 0.3)) {
+                    recommendations.push("Rain possible - keep umbrella handy and check traffic updates");
+                }
+                
+                return recommendations.slice(0, 5);
+            }
+        }
+
+        class UIComponents {
+            static createAlert(alert) {
+                const alertElement = document.createElement('div');
+                alertElement.className = `alert ${alert.level}`;
+                
+                alertElement.innerHTML = `
+                    <div class="alert-header">
+                        <div>
+                            <span class="alert-severity ${alert.level}">
+                                <i class="fas fa-${this.getAlertIcon(alert.type)}"></i>
+                                ${alert.level.toUpperCase()}
+                            </span>
+                            <strong style="margin-left: 1rem; color: var(--text-dark);">${alert.title}</strong>
+                        </div>
+                        <div style="font-weight: 700; color: var(--primary);">${alert.severity}/100</div>
+                    </div>
+                    <div style="margin-bottom: 1rem; color: var(--text-dark); font-weight: 500;">${alert.message}</div>
+                    <div style="font-size: 0.875rem; color: var(--text-light); margin-bottom: 1rem; font-weight: 600;">${alert.details}</div>
+                    <div class="severity-bar">
+                        <div class="severity-fill" style="width: ${alert.severity}%; ${this.getSeverityColor(alert.severity)}"></div>
+                    </div>
+                    <div style="margin-top: 1rem;">
+                        <strong style="color: var(--text-dark); font-size: 0.875rem;">Recommendations:</strong>
+                        <ul style="margin-top: 0.5rem; padding-left: 1.5rem; font-size: 0.875rem; color: var(--text-light);">
+                            ${alert.recommendations.map(rec => `<li style="margin-bottom: 0.25rem; font-weight: 500;">${rec}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+                
+                return alertElement;
+            }
+            
+            static getAlertIcon(type) {
+                const icons = {
+                    heat: 'temperature-high',
+                    rain: 'cloud-rain',
+                    wind: 'wind',
+                    visibility: 'eye-slash',
+                    clear: 'check-circle'
+                };
+                return icons[type] || 'exclamation-triangle';
+            }
+            
+            static getSeverityColor(severity) {
+                if (severity >= 70) return 'background: #dc2626;';
+                if (severity >= 45) return 'background: #f59e0b;';
+                return 'background: #059669;';
+            }
+            
+            static createWeatherSlot(slot, index) {
+                const time = new Date(slot.dt * 1000);
+                const temp = Math.round(slot.main.feels_like);
+                const pop = Math.round(slot.pop * 100);
+                const windSpeed = Math.round(slot.wind?.speed || 0);
+                const rain = slot.rain?.['3h'] || 0;
+                
+                const riskScore = Math.min(100, pop * 0.6 + Math.max(0, (windSpeed - 8)) * 8 + Math.min(40, rain * 4));
+                
+                return `
+                    <div class="weather-slot" style="animation-delay: ${index * 0.1}s;">
+                        <div class="slot-time">${time.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})}</div>
+                        <div class="slot-temp">${temp}°C</div>
+                        <div class="slot-desc">
+                            <i class="fas fa-${this.getWeatherIcon(slot.weather[0].main)}" style="color: var(--primary);"></i>
+                            ${slot.weather[0].main}
+                        </div>
+                        <div style="font-size: 0.875rem; color: var(--text-light); margin-bottom: 1rem; font-weight: 600;">
+                            <div>💧 ${pop}% • 💨 ${windSpeed} m/s</div>
+                            ${rain > 0 ? `<div>🌧️ ${rain.toFixed(1)}mm</div>` : ''}
+                        </div>
+                        <div class="risk-indicator">
+                            <span style="color: var(--text-dark);">Risk Level</span>
+                            <span style="color: ${riskScore >= 70 ? '#dc2626' : riskScore >= 45 ? '#f59e0b' : '#059669'}; font-weight: 700;">
+                                ${Math.round(riskScore)}%
+                            </span>
+                        </div>
+                        <div class="severity-bar">
+                            <div class="severity-fill" style="width: ${riskScore}%; ${this.getSeverityColor(riskScore)}"></div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            static getWeatherIcon(condition) {
+                const icons = {
+                    'Clear': 'sun',
+                    'Clouds': 'cloud',
+                    'Rain': 'cloud-rain',
+                    'Drizzle': 'cloud-drizzle',
+                    'Thunderstorm': 'bolt',
+                    'Snow': 'snowflake',
+                    'Mist': 'smog',
+                    'Fog': 'smog'
+                };
+                return icons[condition] || 'cloud';
+            }
+            
+            static createBlogPost(post) {
+                const date = new Date(post.timestamp);
+                const timeAgo = this.getTimeAgo(date);
+                
+                return `
+                    <div class="blog-post">
+                        <div class="blog-meta">
+                            <span><i class="fas fa-map-marker-alt"></i> ${post.city}</span>
+                            <span><i class="fas fa-clock"></i> ${timeAgo}</span>
+                        </div>
+                        <div class="blog-title">${post.title}</div>
+                        <div class="blog-content">${post.content}</div>
+                    </div>
+                `;
+            }
+            
+            static getTimeAgo(date) {
+                const now = new Date();
+                const diffMs = now - date;
+                const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+                const diffDays = Math.floor(diffHours / 24);
+                
+                if (diffDays > 0) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+                if (diffHours > 0) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+                return 'Just now';
+            }
+            
+            static showNotification(message, type = 'success') {
+                const notification = document.createElement('div');
+                notification.className = `notification ${type}`;
+                notification.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 0.75rem; font-weight: 600; color: var(--text-dark);">
+                        <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}" style="color: ${type === 'success' ? '#059669' : '#dc2626'}; font-size: 1.2rem;"></i>
+                        ${message}
+                    </div>
+                `;
+                
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    notification.style.animation = 'slideOutRight 0.3s ease-out forwards';
+                    setTimeout(() => {
+                        if (document.body.contains(notification)) {
+                            document.body.removeChild(notification);
+                        }
+                    }, 300);
+                }, 3000);
+            }
+        }
+
+        class BlogGenerator {
+            static async generateBlog(weatherData, alerts) {
+                if (!weatherData) {
+                    throw new Error('No weather data available');
+                }
+                
+                const location = `${weatherData.city.name}, ${weatherData.city.country}`;
+                const current = weatherData.list[0];
+                const primaryAlert = alerts[0];
+                
+                const prompt = this.createBlogPrompt(location, current, alerts, weatherData);
+                
+                try {
+                    const response = await fetch(`${CONFIG.GEMINI_ENDPOINT}?key=${CONFIG.GEMINI_API}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            contents: [{
+                                role: 'user',
+                                parts: [{ text: prompt }]
+                            }],
+                            generationConfig: {
+                                temperature: 0.4,
+                                topP: 0.8,
+                                maxOutputTokens: 800
+                            }
+                        })
+                    });
+                    
+                    if (!response.ok) throw new Error('Gemini API error');
+                    
+                    const result = await response.json();
+                    const content = result.candidates?.[0]?.content?.parts?.[0]?.text || '';
+                    
+                    return this.formatBlogPost(content, location);
+                    
+                } catch (error) {
+                    return this.generateFallbackBlog(location, current, alerts);
+                }
+            }
+            
+            static createBlogPrompt(location, current, alerts, weatherData) {
+                const rain24h = WeatherAnalyzer.calculateRainTotal(weatherData.list, 24);
+                const windData = WeatherAnalyzer.analyzeWindPatterns(weatherData.list);
+                
+                return `Write a professional weather blog post for ${location}. 
+
+Current conditions:
+- Temperature: ${Math.round(current.main.temp)}°C (feels like ${Math.round(current.main.feels_like)}°C)
+- Weather: ${current.weather[0].description}
+- Humidity: ${current.main.humidity}%
+- Wind: ${Math.round(current.wind?.speed || 0)} m/s
+
+Primary Alert: ${alerts[0].title} (Severity: ${alerts[0].severity}/100)
+24h Rain Forecast: ${rain24h.toFixed(1)}mm
+Max Wind Speed: ${windData.maxSpeed.toFixed(1)} m/s
+
+Requirements:
+- Title should be engaging and location-specific
+- 250-400 words
+- Include practical tips and recommendations
+- Use a professional but accessible tone
+- Structure with clear paragraphs
+- Include specific weather metrics
+- End with actionable advice
+
+Format the response as HTML with proper headings and structure.`;
+            }
+            
+            static formatBlogPost(content, location) {
+                const titleMatch = content.match(/<h[1-3]>(.*?)<\/h[1-3]>/i);
+                const title = titleMatch ? titleMatch[1] : `Weather Update for ${location}`;
+                
+                const cleanContent = content
+                    .replace(/<h[1-3]>.*?<\/h[1-3]>/i, '')
+                    .trim();
+                
+                return {
+                    title,
+                    content: cleanContent || content,
+                    city: location,
+                    timestamp: Date.now(),
+                    id: Date.now().toString()
+                };
+            }
+            
+            static generateFallbackBlog(location, current, alerts) {
+                const primaryAlert = alerts[0];
+                const title = `${primaryAlert.level === 'high' ? '⚠️ Weather Alert' : '🌤️ Weather Update'} - ${location}`;
+                
+                const content = `
+                    <p><strong>Current Conditions:</strong> ${Math.round(current.main.temp)}°C with ${current.weather[0].description}. 
+                    Humidity at ${current.main.humidity}% making it feel like ${Math.round(current.main.feels_like)}°C.</p>
+                    
+                    <p><strong>Alert Status:</strong> ${primaryAlert.title} with a severity level of ${primaryAlert.severity}/100. 
+                    ${primaryAlert.message}</p>
+                    
+                    <p><strong>Recommendations:</strong></p>
+                    <ul>
+                        ${primaryAlert.recommendations.map(rec => `<li>${rec}</li>`).join('')}
+                    </ul>
+                    
+                    <p><em>Stay safe and monitor weather conditions regularly. This automated report is generated using real-time weather data.</em></p>
+                `;
+                
+                return this.formatBlogPost(content, location, title);
+            }
+        }
+
+        class WeatherApp {
+            constructor() {
+                this.state = state;
+                this.elements = elements;
+                this.initializeEventListeners();
+                this.loadInitialData();
+                this.requestNotificationPermission();
+            }
+            
+            initializeEventListeners() {
+                this.elements.scanBtn.addEventListener('click', () => this.scanWeather());
+                this.elements.geoBtn.addEventListener('click', () => this.useGeolocation());
+                this.elements.ttsBtn.addEventListener('click', () => this.readAlertsAloud());
+                this.elements.blogBtn.addEventListener('click', () => this.generateBlog());
+                this.elements.exportBtn.addEventListener('click', () => this.exportData());
+                this.elements.clearBlogsBtn.addEventListener('click', () => this.clearAllBlogs());
+                
+                this.elements.cityInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') this.scanWeather();
+                });
+                
+                this.elements.cityInput.addEventListener('input', (e) => {
+                    try {
+                        localStorage.setItem('last_city', e.target.value);
+                    } catch (e) {
+                    }
+                });
+            }
+            
+            loadInitialData() {
+                try {
+                    const lastCity = localStorage.getItem('last_city');
+                    if (lastCity) {
+                        this.elements.cityInput.value = lastCity;
+                    }
+                } catch (e) {
+                }
+                
+                this.renderBlogPosts();
+                this.updateBlogStats();
+            }
+            
+            async requestNotificationPermission() {
+                if ('Notification' in window && Notification.permission === 'default') {
+                    try {
+                        await Notification.requestPermission();
+                    } catch (e) {
+                    }
+                }
+            }
+            
+            async scanWeather() {
+                const city = this.elements.cityInput.value.trim();
+                if (!city) {
+                    UIComponents.showNotification('Please enter a city name', 'error');
+                    return;
+                }
+                
+                this.setLoadingState(true);
+                
+                try {
+                    const data = await WeatherAPI.fetchByCity(city);
+                    await this.processWeatherData(data);
+                    UIComponents.showNotification('Weather data updated successfully!');
+                } catch (error) {
+                    UIComponents.showNotification(error.message, 'error');
+                    this.setLoadingState(false);
+                }
+            }
+            
+            async useGeolocation() {
+                if (!navigator.geolocation) {
+                    UIComponents.showNotification('Geolocation not supported', 'error');
+                    return;
+                }
+                
+                this.setLoadingState(true);
+                
+                try {
+                    const position = await new Promise((resolve, reject) => {
+                        navigator.geolocation.getCurrentPosition(resolve, reject, {
+                            enableHighAccuracy: true,
+                            timeout: 10000
+                        });
+                    });
+                    
+                    const data = await WeatherAPI.fetchByCoords(
+                        position.coords.latitude, 
+                        position.coords.longitude
+                    );
+                    
+                    this.elements.cityInput.value = data.city.name;
+                    await this.processWeatherData(data);
+                    UIComponents.showNotification('Location weather loaded!');
+                } catch (error) {
+                    UIComponents.showNotification('Location access failed', 'error');
+                    this.setLoadingState(false);
+                }
+            }
+            
+            async processWeatherData(data) {
+                this.state.setCurrentData(data);
+                
+                this.state.alerts = WeatherAnalyzer.generateAlerts(data);
+                
+                this.updateCurrentWeather(data);
+                this.renderAlerts(this.state.alerts);
+                this.renderForecastSlots(data.list.slice(0, 8));
+                this.updateAIInsights(data, this.state.alerts);
+                this.updateLastUpdateTime();
+                
+                this.sendCriticalNotifications(this.state.alerts);
+                
+                this.setLoadingState(false);
+            }
+            
+            updateCurrentWeather(data) {
+                const current = data.list[0];
+                const location = `${data.city.name}, ${data.city.country}`;
+                const rain24h = WeatherAnalyzer.calculateRainTotal(data.list, 24);
+                
+                this.elements.currentLocation.textContent = location;
+                this.elements.currentTemp.textContent = `${Math.round(current.main.temp)}°C`;
+                this.elements.currentCondition.textContent = current.weather[0].description;
+                this.elements.rainForecast.textContent = `${rain24h.toFixed(1)}mm`;
+            }
+            
+            renderAlerts(alerts) {
+                this.elements.alertContainer.innerHTML = '';
+                alerts.forEach((alert, index) => {
+                    const alertElement = UIComponents.createAlert(alert);
+                    alertElement.style.animationDelay = `${index * 0.1}s`;
+                    this.elements.alertContainer.appendChild(alertElement);
+                });
+            }
+            
+            renderForecastSlots(slots) {
+                this.elements.forecastSlots.innerHTML = slots
+                    .map((slot, index) => UIComponents.createWeatherSlot(slot, index))
+                    .join('');
+            }
+            
+            updateAIInsights(data, alerts) {
+                const insights = AIInsights.generateInsights(data, alerts);
+                this.elements.aiInsights.innerHTML = insights
+                    .replace(/\n/g, '<br>')
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            }
+            
+            updateLastUpdateTime() {
+                const now = new Date();
+                this.elements.lastUpdate.textContent = `Updated ${now.toLocaleTimeString()}`;
+            }
+            
+            sendCriticalNotifications(alerts) {
+                if (Notification.permission === 'granted') {
+                    const criticalAlerts = alerts.filter(alert => alert.severity >= 70);
+                    criticalAlerts.slice(0, 2).forEach(alert => {
+                        try {
+                            new Notification(`${alert.level.toUpperCase()}: ${alert.title}`, {
+                                body: alert.message,
+                                icon: '/favicon.ico',
+                                tag: alert.type
+                            });
+                        } catch (e) {
+                        }
+                    });
+                }
+            }
+            
+            readAlertsAloud() {
+                if (!this.state.alerts.length) {
+                    UIComponents.showNotification('No alerts to read', 'error');
+                    return;
+                }
+                
+                const text = this.state.alerts.slice(0, 3)
+                    .map(alert => `${alert.level} ${alert.title}. ${alert.message}`)
+                    .join('. ');
+                
+                if ('speechSynthesis' in window) {
+                    window.speechSynthesis.cancel();
+                    const utterance = new SpeechSynthesisUtterance(text);
+                    utterance.rate = 0.9;
+                    utterance.pitch = 1.0;
+                    window.speechSynthesis.speak(utterance);
+                    UIComponents.showNotification('Reading alerts aloud...');
+                } else {
+                    UIComponents.showNotification('Text-to-speech not supported', 'error');
+                }
+            }
+            
+            async generateBlog() {
+                if (!this.state.currentData) {
+                    UIComponents.showNotification('Please scan weather first', 'error');
+                    return;
+                }
+                
+                this.elements.blogBtn.innerHTML = '<i class="fas fa-spinner spinner"></i> Generating...';
+                this.elements.blogBtn.disabled = true;
+                
+                try {
+                    const blogPost = await BlogGenerator.generateBlog(this.state.currentData, this.state.alerts);
+                    this.state.addBlogPost(blogPost);
+                    this.renderBlogPosts();
+                    this.updateBlogStats();
+                    UIComponents.showNotification('AI blog post generated!');
+                } catch (error) {
+                    UIComponents.showNotification('Failed to generate blog', 'error');
+                } finally {
+                    this.elements.blogBtn.innerHTML = '<i class="fas fa-pen-fancy"></i> Generate Blog';
+                    this.elements.blogBtn.disabled = false;
+                }
+            }
+            
+            clearAllBlogs() {
+                if (this.state.blogPosts.length === 0) {
+                    UIComponents.showNotification('No blog posts to clear', 'error');
+                    return;
+                }
+                
+                if (confirm('Are you sure you want to delete all blog posts? This action cannot be undone.')) {
+                    this.state.clearBlogPosts();
+                    this.renderBlogPosts();
+                    this.updateBlogStats();
+                    UIComponents.showNotification('All blog posts cleared');
+                }
+            }
+            
+            renderBlogPosts() {
+                if (!this.state.blogPosts.length) {
+                    this.elements.blogContainer.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-feather-alt"></i>
+                            <h3>No Blog Posts Yet</h3>
+                            <p>Generate your first AI-powered weather blog post by clicking the "Generate Blog" button after scanning weather data.</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                this.elements.blogContainer.innerHTML = this.state.blogPosts
+                    .map(post => UIComponents.createBlogPost(post))
+                    .join('');
+            }
+            
+            updateBlogStats() {
+                this.elements.blogCount.textContent = this.state.blogPosts.length;
+                
+                if (this.state.blogPosts.length > 0) {
+                    const lastPost = new Date(this.state.blogPosts[0].timestamp);
+                    this.elements.lastGenerated.textContent = UIComponents.getTimeAgo(lastPost);
+                } else {
+                    this.elements.lastGenerated.textContent = 'Never';
+                }
+            }
+            
+            exportData() {
+                if (!this.state.blogPosts.length) {
+                    UIComponents.showNotification('No blog posts to export', 'error');
+                    return;
+                }
+                
+                const markdown = this.state.blogPosts.map(post => {
+                    const date = new Date(post.timestamp).toISOString();
+                    const content = post.content.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+                    return `# ${post.title}\n\n**Location:** ${post.city}\n**Date:** ${date}\n\n${content}\n\n---\n`;
+                }).join('\n');
+                
+                const blob = new Blob([markdown], { type: 'text/markdown' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `weather-blog-${new Date().toISOString().split('T')[0]}.md`;
+                a.click();
+                URL.revokeObjectURL(url);
+                
+                UIComponents.showNotification('Blog posts exported as Markdown!');
+            }
+            
+            setLoadingState(isLoading) {
+                this.state.isLoading = isLoading;
+                this.elements.scanBtn.innerHTML = isLoading 
+                    ? '<i class="fas fa-spinner spinner"></i> Scanning...'
+                    : '<i class="fas fa-radar"></i> Scan Alerts';
+                this.elements.scanBtn.disabled = isLoading;
+                
+                if (isLoading) {
+                    this.elements.alertContainer.innerHTML = `
+                        <div class="loading">
+                            <i class="fas fa-spinner spinner"></i>
+                            <div>Analyzing weather conditions...</div>
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            new WeatherApp();
+        });
+    </script>
+</body>
+</html>
